@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Order\Application\Query\GetOrder;
 
+use App\Order\Application\Query\ReadModel\OrderView;
 use App\Order\Domain\Exception\OrderNotFoundException;
 use App\Order\Domain\Repository\OrderRepositoryInterface;
 

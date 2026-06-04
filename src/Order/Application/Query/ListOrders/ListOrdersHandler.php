@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Order\Application\Query\ListOrders;
 
-use App\Order\Application\Query\GetOrder\OrderView;
+use App\Order\Application\Query\ReadModel\OrderView;
 use App\Order\Domain\Repository\OrderRepositoryInterface;
 
 final readonly class ListOrdersHandler

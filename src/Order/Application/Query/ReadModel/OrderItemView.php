@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Order\Application\Query\GetOrder;
+namespace App\Order\Application\Query\ReadModel;
 
 use App\Order\Domain\Model\OrderItem;
 
