@@ -95,7 +95,7 @@
   <line x1="430" y1="332" x2="430" y2="346" stroke="#475569" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#arrGray)"/>
 
   <!-- ③ BDD Acceptance Tests (Behat) -->
-  <text x="430" y="356" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">③ BDD Acceptance Tests (Behat) — 26 Scenarios across 3 Features</text>
+  <text x="430" y="356" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">③ BDD Acceptance Tests (Behat) — 29 Scenarios across 7 Feature Files</text>
 
   <rect x="22" y="361" width="804" height="234" rx="5" fill="#1a1200" stroke="#ca8a04" stroke-width="1.5"/>
   <line x1="415" y1="369" x2="415" y2="557" stroke="#451a03" stroke-width="1"/>
@@ -103,22 +103,20 @@
   <!-- Left: Gherkin Scenarios -->
   <text x="215" y="379" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fbbf24">Gherkin Scenarios</text>
 
-  <text x="30" y="393" font-size="8" fill="#fde68a" font-weight="600">features/product/products.feature (8 scenarios)</text>
-  <text x="30" y="405" font-size="7.5" fill="#d97706">  Background: User + 2 products created</text>
-  <text x="30" y="417" font-size="7.5" fill="#fbbf24">  List · Get · Get 404 · Create 401 (no auth)</text>
-  <text x="30" y="429" font-size="7.5" fill="#fbbf24">  Create · Create 422 · Update · Delete 204</text>
+  <text x="30" y="393" font-size="8" fill="#fde68a" font-weight="600">── Product BC  (3 files · 11 scenarios) ──</text>
+  <text x="30" y="405" font-size="7.5" fill="#fbbf24">  list_get (3):  List · Get · Get 404</text>
+  <text x="30" y="417" font-size="7.5" fill="#fbbf24">  create (4):  401 · 403 (ROLE_ADMIN) · Create · Invalid 422</text>
+  <text x="30" y="429" font-size="7.5" fill="#fbbf24">  update_delete (4):  403 (×2, ROLE_ADMIN) · Update · Delete 204</text>
 
-  <text x="30" y="447" font-size="8" fill="#fde68a" font-weight="600">features/order/orders.feature (13 scenarios)</text>
-  <text x="30" y="459" font-size="7.5" fill="#d97706">  Background: User + 2 products (with stock)</text>
-  <text x="30" y="471" font-size="7.5" fill="#fbbf24">  List · Get · Get 404 · Place 401 · Place</text>
-  <text x="30" y="483" font-size="7.5" fill="#fbbf24">  Insuff. Stock 422 · Unknown 404 · Invalid 422</text>
-  <text x="30" y="495" font-size="7.5" fill="#fbbf24">  Pay · Pay 409 conflict · Pay 402 declined · Pay 401 · Pay 404</text>
+  <text x="30" y="447" font-size="8" fill="#fde68a" font-weight="600">── Order BC  (3 files · 13 scenarios) ──</text>
+  <text x="30" y="459" font-size="7.5" fill="#fbbf24">  list_get (3):  List · Get · Get 404</text>
+  <text x="30" y="471" font-size="7.5" fill="#fbbf24">  place (5):  401 · Place · Insuff.Stock 422 · Unknown 404 · Invalid 422</text>
+  <text x="30" y="483" font-size="7.5" fill="#fbbf24">  pay (5):  Pay · Conflict 409 · Declined 402 · 401 · Pay 404</text>
 
-  <text x="30" y="513" font-size="8" fill="#fde68a" font-weight="600">features/auth/auth.feature (5 scenarios)</text>
-  <text x="30" y="525" font-size="7.5" fill="#d97706">  Background: User created</text>
-  <text x="30" y="537" font-size="7.5" fill="#fbbf24">  Login · Login fail 401 · Register · Duplicate 409 · Invalid 422</text>
+  <text x="30" y="499" font-size="8" fill="#fde68a" font-weight="600">── Auth  (1 file · 5 scenarios) ──</text>
+  <text x="30" y="511" font-size="7.5" fill="#fbbf24">  auth (5):  Login · Login fail 401 · Register · Duplicate 409 · Invalid 422</text>
 
-  <text x="215" y="553" font-size="7" fill="#78350f">composer app:behat  →  vendor/bin/behat  (features/ · 3 files · 26 scenarios)</text>
+  <text x="215" y="537" font-size="7" fill="#78350f">composer app:behat  →  vendor/bin/behat  (features/ · 7 files · 29 scenarios)</text>
 
   <!-- Right: Context Classes -->
   <text x="615" y="379" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fbbf24">Context Classes</text>
@@ -277,7 +275,7 @@
   <text x="900" y="794" font-size="8" fill="#7dd3fc" font-family="monospace">app:test</text>
   <text x="970" y="794" font-size="8" fill="#475569">→ php bin/phpunit  (Unit tests only — no Functional dir)</text>
   <text x="900" y="806" font-size="8" fill="#7dd3fc" font-family="monospace">app:behat</text>
-  <text x="970" y="806" font-size="8" fill="#475569">→ vendor/bin/behat  (3 feature files · 26 scenarios)</text>
+  <text x="970" y="806" font-size="8" fill="#475569">→ vendor/bin/behat  (7 feature files · 29 scenarios)</text>
   <text x="900" y="818" font-size="8" fill="#7dd3fc" font-family="monospace">app:cs:fix</text>
   <text x="970" y="818" font-size="8" fill="#475569">→ php-cs-fixer fix  (apply changes)</text>
 

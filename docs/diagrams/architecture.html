@@ -29,7 +29,7 @@
 
   <!-- TITLE -->
   <text x="700" y="38" text-anchor="middle" font-size="22" font-weight="700" fill="#f1f5f9">Hexagonal Architecture &amp; Domain-Driven Design</text>
-  <text x="700" y="58" text-anchor="middle" font-size="13" fill="#475569">sample-hexagonal-api · PHP 8.4 · Symfony 8 · Doctrine ORM · JWT Auth</text>
+  <text x="700" y="58" text-anchor="middle" font-size="13" fill="#475569">sample-hexagonal-api · PHP 8.4 · Symfony 8 · Doctrine ORM · JWT Auth · ROLE_ADMIN / ROLE_USER · ProductVoter</text>
   <line x1="20" y1="70" x2="1380" y2="70" stroke="#1e293b" stroke-width="1"/>
 
   <!-- ═══════════════════════════════════════════
@@ -119,16 +119,17 @@
   <text x="440" y="244" text-anchor="middle" font-size="8.5" fill="#a78bfa">OrderController  ·  ProductController  ·  AuthController  ·  HealthController</text>
   <text x="440" y="258" text-anchor="middle" font-size="8" fill="#7c3aed">DTOs: PlaceOrderDto · CreateProductDto · UpdateProductDto · RegisterUserDto</text>
   <text x="440" y="271" text-anchor="middle" font-size="7.5" fill="#4c1d95">@Route('/api/orders')  ·  @Route('/api/products')  ·  @Route('/api/auth')  ·  @Route('/health')</text>
-  <text x="440" y="283" text-anchor="middle" font-size="7.5" fill="#6d28d9">ApiExceptionSubscriber — maps domain exceptions → JSON · logs via Monolog (JSON)</text>
+  <text x="440" y="283" text-anchor="middle" font-size="7.5" fill="#6d28d9">ApiExceptionSubscriber — domain exceptions → JSON · denyAccessUnlessGranted(ProductVoter::*) on write ops</text>
 
   <!-- LEFT: Security -->
-  <rect x="130" y="428" width="90" height="84" rx="5" fill="#1a1400" stroke="#ca8a04" stroke-width="1.5"/>
-  <text x="175" y="445" text-anchor="middle" font-size="8.5" font-weight="700" fill="#fbbf24">Security</text>
-  <text x="175" y="459" text-anchor="middle" font-size="7.5" fill="#fde68a">JwtBlocklist</text>
-  <text x="175" y="471" text-anchor="middle" font-size="7.5" fill="#fde68a">JwtCreated</text>
-  <text x="175" y="483" text-anchor="middle" font-size="7.5" fill="#fde68a">Listener</text>
-  <text x="175" y="495" text-anchor="middle" font-size="7.5" fill="#fde68a">Blocklist</text>
-  <text x="175" y="505" text-anchor="middle" font-size="7" fill="#78350f">User / Infra</text>
+  <rect x="130" y="420" width="90" height="100" rx="5" fill="#1a1400" stroke="#ca8a04" stroke-width="1.5"/>
+  <text x="175" y="437" text-anchor="middle" font-size="8.5" font-weight="700" fill="#fbbf24">Security</text>
+  <text x="175" y="451" text-anchor="middle" font-size="7.5" fill="#fde68a">JwtBlocklist</text>
+  <text x="175" y="463" text-anchor="middle" font-size="7.5" fill="#fde68a">JwtCreated</text>
+  <text x="175" y="475" text-anchor="middle" font-size="7.5" fill="#fde68a">Listener</text>
+  <text x="175" y="487" text-anchor="middle" font-size="7.5" fill="#fde68a">Blocklist</text>
+  <text x="175" y="501" text-anchor="middle" font-size="7.5" fill="#fde68a">ProductVoter</text>
+  <text x="175" y="513" text-anchor="middle" font-size="7" fill="#78350f">User+Product / Infra</text>
 
   <!-- BOTTOM: Secondary Adapters -->
   <rect x="260" y="662" width="360" height="92" rx="5" fill="#09200f" stroke="#16a34a" stroke-width="1.5"/>

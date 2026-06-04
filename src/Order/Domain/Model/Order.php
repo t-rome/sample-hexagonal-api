@@ -17,7 +17,7 @@ class Order
 
     /** @param OrderItem[] $items */
     private function __construct(
-        // Domain identity: generated before persistence so domain events carry a stable,
+        // Domain identity: generated before persistence, so domain events carry a stable,
         // non-guessable ID without depending on a DB auto-increment.
         private readonly Uuid $uuid,
         // Surrogate key assigned by the DB; null until first persist.

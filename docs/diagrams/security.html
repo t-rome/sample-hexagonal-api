@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security &amp; Authorization – sample-hexagonal-api</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 20px; background: #0f172a; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    svg { display: block; width: 100%; max-width: 1400px; margin: 0 auto; height: auto; }
+  </style>
+</head>
+<body>
+<svg viewBox="0 0 1400 820" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif">
+  <defs>
+    <marker id="arrGray" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#475569"/>
+    </marker>
+    <marker id="arrYellow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#ca8a04"/>
+    </marker>
+    <marker id="arrGreen" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <!-- BACKGROUND -->
+  <rect width="1400" height="820" fill="#0f172a"/>
+
+  <!-- TITLE -->
+  <text x="700" y="38" text-anchor="middle" font-size="22" font-weight="700" fill="#f1f5f9">Security &amp; Authorization</text>
+  <text x="700" y="58" text-anchor="middle" font-size="13" fill="#475569">sample-hexagonal-api · JWT Bearer · ROLE_ADMIN · ROLE_USER · ProductVoter · Symfony 8 Security</text>
+  <line x1="20" y1="70" x2="1380" y2="70" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- VERTICAL SEPARATOR -->
+  <line x1="868" y1="75" x2="868" y2="800" stroke="#1e293b" stroke-width="1.5"/>
+
+  <!-- ════════════════════════════════════════
+       LEFT PANEL
+  ════════════════════════════════════════ -->
+
+  <!-- ① Role Hierarchy -->
+  <text x="430" y="88" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">① Role Hierarchy</text>
+
+  <rect x="22" y="94" width="822" height="74" rx="5" fill="#0c1222" stroke="#1e293b" stroke-width="1.5"/>
+
+  <!-- PUBLIC ACCESS box -->
+  <rect x="40" y="108" width="180" height="44" rx="5" fill="#181818" stroke="#475569" stroke-width="1.5"/>
+  <text x="130" y="126" text-anchor="middle" font-size="9.5" font-weight="700" fill="#94a3b8">PUBLIC ACCESS</text>
+  <text x="130" y="141" text-anchor="middle" font-size="7.5" fill="#64748b">No token required</text>
+
+  <!-- Arrow -->
+  <line x1="220" y1="130" x2="280" y2="130" stroke="#475569" stroke-width="1.5" marker-end="url(#arrGray)"/>
+  <text x="250" y="124" text-anchor="middle" font-size="7" fill="#475569">implied by</text>
+
+  <!-- ROLE_USER box -->
+  <rect x="280" y="108" width="180" height="44" rx="5" fill="#09200f" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="370" y="126" text-anchor="middle" font-size="9.5" font-weight="700" fill="#4ade80">ROLE_USER</text>
+  <text x="370" y="141" text-anchor="middle" font-size="7.5" fill="#86efac">Registered users</text>
+
+  <!-- Arrow -->
+  <line x1="460" y1="130" x2="520" y2="130" stroke="#ca8a04" stroke-width="1.5" marker-end="url(#arrYellow)"/>
+  <text x="490" y="124" text-anchor="middle" font-size="7" fill="#ca8a04">implied by</text>
+
+  <!-- ROLE_ADMIN box -->
+  <rect x="520" y="108" width="180" height="44" rx="5" fill="#140933" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="610" y="126" text-anchor="middle" font-size="9.5" font-weight="700" fill="#c4b5fd">ROLE_ADMIN</text>
+  <text x="610" y="141" text-anchor="middle" font-size="7.5" fill="#a78bfa">Privileged users</text>
+
+  <!-- hierarchy note -->
+  <text x="740" y="118" font-size="7.5" fill="#334155">role_hierarchy:</text>
+  <text x="740" y="130" font-size="7.5" fill="#475569">ROLE_ADMIN:</text>
+  <text x="740" y="142" font-size="7.5" fill="#475569">  [ROLE_USER]</text>
+  <text x="830" y="142" font-size="7" fill="#334155">security.yaml</text>
+
+  <!-- ② Access Control Matrix -->
+  <text x="430" y="186" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">② Access Control Matrix</text>
+
+  <rect x="22" y="192" width="822" height="344" rx="5" fill="#0c1222" stroke="#1e293b" stroke-width="1.5"/>
+
+  <!-- Column headers -->
+  <rect x="22" y="192" width="822" height="22" rx="5" fill="#1e293b"/>
+  <text x="200" y="207" text-anchor="middle" font-size="8.5" font-weight="700" fill="#94a3b8">Endpoint</text>
+  <line x1="370" y1="192" x2="370" y2="536" stroke="#1e293b" stroke-width="1"/>
+  <text x="460" y="207" text-anchor="middle" font-size="8.5" font-weight="700" fill="#94a3b8">PUBLIC</text>
+  <line x1="550" y1="192" x2="550" y2="536" stroke="#1e293b" stroke-width="1"/>
+  <text x="636" y="207" text-anchor="middle" font-size="8.5" font-weight="700" fill="#4ade80">ROLE_USER</text>
+  <line x1="722" y1="192" x2="722" y2="536" stroke="#1e293b" stroke-width="1"/>
+  <text x="808" y="207" text-anchor="middle" font-size="8.5" font-weight="700" fill="#c4b5fd">ROLE_ADMIN</text>
+
+  <!-- Row helper macro — rows at y=214,238,262,286,310,334,358,382,406,430,454,478,502 (24px each) -->
+
+  <!-- GET /api/products -->
+  <line x1="32" y1="238" x2="834" y2="238" stroke="#1e293b" stroke-width="0.5"/>
+  <text x="38" y="229" font-size="8" fill="#7dd3fc">GET /api/products</text>
+  <text x="460" y="229" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="636" y="229" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="808" y="229" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+
+  <!-- GET /api/products/{id} -->
+  <line x1="32" y1="262" x2="834" y2="262" stroke="#1e293b" stroke-width="0.5"/>
+  <text x="38" y="253" font-size="8" fill="#7dd3fc">GET /api/products/{id}</text>
+  <text x="460" y="253" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="636" y="253" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="808" y="253" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+
+  <!-- POST /api/products -->
+  <line x1="32" y1="286" x2="834" y2="286" stroke="#1e293b" stroke-width="0.5"/>
+  <rect x="370" y="263" width="180" height="23" fill="#1c0505"/>
+  <rect x="550" y="263" width="172" height="23" fill="#1c0505"/>
+  <rect x="722" y="263" width="112" height="23" fill="#071a0e"/>
+  <text x="38" y="277" font-size="8" fill="#7dd3fc">POST /api/products</text>
+  <text x="460" y="277" text-anchor="middle" font-size="7.5" font-weight="600" fill="#ef4444">401</text>
+  <text x="636" y="277" text-anchor="middle" font-size="7.5" font-weight="600" fill="#f59e0b">403</text>
+  <text x="808" y="277" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="755" y="285" font-size="6" fill="#7c3aed">ProductVoter</text>
+
+  <!-- PUT /api/products/{id} -->
+  <line x1="32" y1="310" x2="834" y2="310" stroke="#1e293b" stroke-width="0.5"/>
+  <rect x="370" y="287" width="180" height="23" fill="#1c0505"/>
+  <rect x="550" y="287" width="172" height="23" fill="#1c0505"/>
+  <rect x="722" y="287" width="112" height="23" fill="#071a0e"/>
+  <text x="38" y="301" font-size="8" fill="#7dd3fc">PUT /api/products/{id}</text>
+  <text x="460" y="301" text-anchor="middle" font-size="7.5" font-weight="600" fill="#ef4444">401</text>
+  <text x="636" y="301" text-anchor="middle" font-size="7.5" font-weight="600" fill="#f59e0b">403</text>
+  <text x="808" y="301" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="755" y="309" font-size="6" fill="#7c3aed">ProductVoter</text>
+
+  <!-- DELETE /api/products/{id} -->
+  <line x1="32" y1="334" x2="834" y2="334" stroke="#1e293b" stroke-width="0.5"/>
+  <rect x="370" y="311" width="180" height="23" fill="#1c0505"/>
+  <rect x="550" y="311" width="172" height="23" fill="#1c0505"/>
+  <rect x="722" y="311" width="112" height="23" fill="#071a0e"/>
+  <text x="38" y="325" font-size="8" fill="#7dd3fc">DELETE /api/products/{id}</text>
+  <text x="460" y="325" text-anchor="middle" font-size="7.5" font-weight="600" fill="#ef4444">401</text>
+  <text x="636" y="325" text-anchor="middle" font-size="7.5" font-weight="600" fill="#f59e0b">403</text>
+  <text x="808" y="325" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="755" y="333" font-size="6" fill="#7c3aed">ProductVoter</text>
+
+  <!-- GET /api/orders -->
+  <line x1="32" y1="358" x2="834" y2="358" stroke="#1e293b" stroke-width="0.5"/>
+  <text x="38" y="349" font-size="8" fill="#7dd3fc">GET /api/orders</text>
+  <text x="460" y="349" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="636" y="349" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="808" y="349" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+
+  <!-- GET /api/orders/{id} -->
+  <line x1="32" y1="382" x2="834" y2="382" stroke="#1e293b" stroke-width="0.5"/>
+  <text x="38" y="373" font-size="8" fill="#7dd3fc">GET /api/orders/{id}</text>
+  <text x="460" y="373" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="636" y="373" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="808" y="373" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+
+  <!-- POST /api/orders -->
+  <line x1="32" y1="406" x2="834" y2="406" stroke="#1e293b" stroke-width="0.5"/>
+  <rect x="370" y="383" width="180" height="23" fill="#1c0505"/>
+  <text x="38" y="397" font-size="8" fill="#7dd3fc">POST /api/orders</text>
+  <text x="460" y="397" text-anchor="middle" font-size="7.5" font-weight="600" fill="#ef4444">401</text>
+  <text x="636" y="397" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="808" y="397" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+
+  <!-- PATCH /api/orders/{id}/pay -->
+  <line x1="32" y1="430" x2="834" y2="430" stroke="#1e293b" stroke-width="0.5"/>
+  <rect x="370" y="407" width="180" height="23" fill="#1c0505"/>
+  <text x="38" y="421" font-size="8" fill="#7dd3fc">PATCH /api/orders/{id}/pay</text>
+  <text x="460" y="421" text-anchor="middle" font-size="7.5" font-weight="600" fill="#ef4444">401</text>
+  <text x="636" y="421" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="808" y="421" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+
+  <!-- POST /api/auth/register -->
+  <line x1="32" y1="454" x2="834" y2="454" stroke="#1e293b" stroke-width="0.5"/>
+  <text x="38" y="445" font-size="8" fill="#7dd3fc">POST /api/auth/register</text>
+  <text x="460" y="445" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="636" y="445" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="808" y="445" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+
+  <!-- POST /api/auth/login -->
+  <line x1="32" y1="478" x2="834" y2="478" stroke="#1e293b" stroke-width="0.5"/>
+  <text x="38" y="469" font-size="8" fill="#7dd3fc">POST /api/auth/login</text>
+  <text x="460" y="469" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="636" y="469" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="808" y="469" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+
+  <!-- POST /api/auth/logout -->
+  <line x1="32" y1="502" x2="834" y2="502" stroke="#1e293b" stroke-width="0.5"/>
+  <rect x="370" y="479" width="180" height="23" fill="#1c0505"/>
+  <text x="38" y="493" font-size="8" fill="#7dd3fc">POST /api/auth/logout</text>
+  <text x="460" y="493" text-anchor="middle" font-size="7.5" font-weight="600" fill="#ef4444">401</text>
+  <text x="636" y="493" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="808" y="493" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+
+  <!-- GET /health -->
+  <text x="38" y="517" font-size="8" fill="#7dd3fc">GET /health</text>
+  <text x="460" y="517" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="636" y="517" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+  <text x="808" y="517" text-anchor="middle" font-size="10" fill="#4ade80">✓</text>
+
+  <!-- Legend row -->
+  <line x1="32" y1="528" x2="834" y2="528" stroke="#1e293b" stroke-width="1"/>
+  <text x="38" y="532" font-size="0"> </text>
+  <rect x="380" y="530" width="10" height="8" rx="1" fill="#4ade80" opacity="0.3"/>
+  <text x="394" y="538" font-size="7" fill="#4ade80">✓ access granted</text>
+  <rect x="490" y="530" width="10" height="8" rx="1" fill="#ef4444" opacity="0.3"/>
+  <text x="504" y="538" font-size="7" fill="#ef4444">401 unauthenticated</text>
+  <rect x="615" y="530" width="10" height="8" rx="1" fill="#f59e0b" opacity="0.3"/>
+  <text x="629" y="538" font-size="7" fill="#f59e0b">403 insufficient role → ProductVoter</text>
+
+  <!-- ③ Authorization Flow -->
+  <text x="430" y="558" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">③ Request → Authorization Flow</text>
+
+  <!-- Flow boxes -->
+  <rect x="22" y="564" width="90" height="38" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+  <text x="67" y="578" text-anchor="middle" font-size="7.5" font-weight="700" fill="#94a3b8">HTTP Request</text>
+  <text x="67" y="591" text-anchor="middle" font-size="6.5" fill="#64748b">Bearer token?</text>
+
+  <line x1="112" y1="583" x2="126" y2="583" stroke="#475569" stroke-width="1.5" marker-end="url(#arrGray)"/>
+
+  <rect x="126" y="564" width="100" height="38" rx="4" fill="#1a1200" stroke="#ca8a04" stroke-width="1.5"/>
+  <text x="176" y="578" text-anchor="middle" font-size="7.5" font-weight="700" fill="#fbbf24">JWT Firewall</text>
+  <text x="176" y="591" text-anchor="middle" font-size="6.5" fill="#d97706">decode · load user</text>
+
+  <line x1="226" y1="583" x2="240" y2="583" stroke="#475569" stroke-width="1.5" marker-end="url(#arrGray)"/>
+
+  <rect x="240" y="564" width="110" height="38" rx="4" fill="#0b1e3a" stroke="#0369a1" stroke-width="1.5"/>
+  <text x="295" y="578" text-anchor="middle" font-size="7.5" font-weight="700" fill="#38bdf8">access_control</text>
+  <text x="295" y="591" text-anchor="middle" font-size="6.5" fill="#7dd3fc">PUBLIC / IS_AUTH_FULLY</text>
+
+  <line x1="350" y1="583" x2="364" y2="583" stroke="#475569" stroke-width="1.5" marker-end="url(#arrGray)"/>
+
+  <rect x="364" y="564" width="110" height="38" rx="4" fill="#160c35" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="419" y="578" text-anchor="middle" font-size="7.5" font-weight="700" fill="#c4b5fd">Controller</text>
+  <text x="419" y="591" text-anchor="middle" font-size="6.5" fill="#a78bfa">denyAccessUnlessGranted()</text>
+
+  <line x1="474" y1="583" x2="488" y2="583" stroke="#475569" stroke-width="1.5" marker-end="url(#arrGray)"/>
+
+  <rect x="488" y="564" width="110" height="38" rx="4" fill="#140933" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="543" y="578" text-anchor="middle" font-size="7.5" font-weight="700" fill="#c4b5fd">ProductVoter</text>
+  <text x="543" y="591" text-anchor="middle" font-size="6.5" fill="#a78bfa">ROLE_ADMIN check</text>
+
+  <line x1="598" y1="583" x2="612" y2="583" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arrGreen)"/>
+
+  <rect x="612" y="564" width="90" height="38" rx="4" fill="#052e16" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="657" y="578" text-anchor="middle" font-size="7.5" font-weight="700" fill="#4ade80">200 / 201</text>
+  <text x="657" y="591" text-anchor="middle" font-size="6.5" fill="#22c55e">204 / other</text>
+
+  <!-- 401 branch -->
+  <line x1="176" y1="602" x2="176" y2="622" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="3,2"/>
+  <rect x="136" y="622" width="80" height="20" rx="3" fill="#1c0505" stroke="#ef4444" stroke-width="1"/>
+  <text x="176" y="636" text-anchor="middle" font-size="7" fill="#ef4444">401 Unauthorized</text>
+
+  <!-- 403 branch -->
+  <line x1="543" y1="602" x2="543" y2="622" stroke="#f59e0b" stroke-width="1.2" stroke-dasharray="3,2"/>
+  <rect x="503" y="622" width="80" height="20" rx="3" fill="#1c0503" stroke="#f59e0b" stroke-width="1"/>
+  <text x="543" y="636" text-anchor="middle" font-size="7" fill="#f59e0b">403 Access Denied</text>
+
+  <!-- ════════════════════════════════════════
+       RIGHT PANEL
+  ════════════════════════════════════════ -->
+
+  <rect x="876" y="78" width="508" height="714" rx="8" fill="#0c1222" stroke="#1e293b" stroke-width="1"/>
+  <text x="1130" y="105" text-anchor="middle" font-size="15" font-weight="700" fill="#f1f5f9">Technical Details</text>
+  <line x1="892" y1="115" x2="1368" y2="115" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- ④ ProductVoter -->
+  <text x="893" y="133" font-size="11" font-weight="700" fill="#e2e8f0">④ ProductVoter</text>
+
+  <rect x="892" y="139" width="490" height="188" rx="6" fill="#090f1e" stroke="#7c3aed" stroke-width="1"/>
+  <text x="900" y="155" font-size="8.5" fill="#c4b5fd" font-weight="600">/** @extends Voter&lt;string, null&gt; */</text>
+  <text x="900" y="167" font-size="8.5" fill="#c4b5fd" font-weight="600">final class ProductVoter extends Voter</text>
+  <text x="900" y="183" font-size="8" fill="#a78bfa">  CREATE = 'product.create'  ·  UPDATE = 'product.update'  ·  DELETE = 'product.delete'</text>
+  <line x1="900" y1="192" x2="1372" y2="192" stroke="#1e293b" stroke-width="1"/>
+  <text x="900" y="206" font-size="8.5" fill="#c4b5fd" font-weight="600">supports(attribute, subject): bool</text>
+  <text x="900" y="218" font-size="8" fill="#a78bfa">  → in_array($attribute, [CREATE, UPDATE, DELETE])</text>
+  <line x1="900" y1="228" x2="1372" y2="228" stroke="#1e293b" stroke-width="1"/>
+  <text x="900" y="242" font-size="8.5" fill="#c4b5fd" font-weight="600">voteOnAttribute(attribute, subject, token, vote): bool</text>
+  <text x="900" y="254" font-size="8" fill="#a78bfa">  → $token-&gt;getUser() === null  → return false  (unauthenticated)</text>
+  <text x="900" y="266" font-size="8" fill="#a78bfa">  → in_array('ROLE_ADMIN', $token-&gt;getRoleNames())  → bool</text>
+  <line x1="900" y1="276" x2="1372" y2="276" stroke="#1e293b" stroke-width="1"/>
+  <text x="900" y="289" font-size="8" fill="#64748b">Returns: ACCESS_GRANTED (1)  ·  ACCESS_DENIED (-1)  ·  ACCESS_ABSTAIN (0)</text>
+  <text x="900" y="301" font-size="7.5" fill="#334155">Registered via Symfony autoconfigure → tagged security.voter · priority: default (0)</text>
+  <text x="900" y="313" font-size="7.5" fill="#334155">Called by: denyAccessUnlessGranted() in ProductController (create, update, delete)</text>
+
+  <!-- ⑤ security.yaml -->
+  <line x1="892" y1="337" x2="1372" y2="337" stroke="#1e293b" stroke-width="1"/>
+  <text x="893" y="353" font-size="11" font-weight="700" fill="#e2e8f0">⑤ security.yaml — Access Control</text>
+
+  <rect x="892" y="359" width="490" height="170" rx="6" fill="#090f1e" stroke="#0369a1" stroke-width="1"/>
+  <text x="900" y="375" font-size="8.5" fill="#38bdf8" font-weight="600">role_hierarchy:</text>
+  <text x="900" y="387" font-size="8" fill="#7dd3fc" font-family="monospace">  ROLE_ADMIN: [ROLE_USER]   ← admin implies user (can also place orders)</text>
+  <line x1="900" y1="397" x2="1372" y2="397" stroke="#1e293b" stroke-width="1"/>
+  <text x="900" y="411" font-size="8.5" fill="#38bdf8" font-weight="600">access_control:  (evaluated top to bottom — first match wins)</text>
+  <text x="900" y="425" font-size="8" fill="#7dd3fc" font-family="monospace">  ^/health         → PUBLIC_ACCESS</text>
+  <text x="900" y="437" font-size="8" fill="#7dd3fc" font-family="monospace">  ^/api/auth       → PUBLIC_ACCESS</text>
+  <text x="900" y="449" font-size="8" fill="#7dd3fc" font-family="monospace">  ^/api/products   → PUBLIC_ACCESS  (GET only)</text>
+  <text x="900" y="461" font-size="8" fill="#7dd3fc" font-family="monospace">  ^/api/orders     → PUBLIC_ACCESS  (GET only)</text>
+  <text x="900" y="473" font-size="8" fill="#7dd3fc" font-family="monospace">  ^/api            → IS_AUTHENTICATED_FULLY</text>
+  <text x="900" y="489" font-size="7.5" fill="#334155">Voter called after access_control passes — for product writes, access_control lets</text>
+  <text x="900" y="499" font-size="7.5" fill="#334155">IS_AUTHENTICATED_FULLY through, then ProductVoter enforces ROLE_ADMIN on top.</text>
+  <text x="900" y="511" font-size="7.5" fill="#475569">Unauthenticated POST/PUT/DELETE → 401 (firewall entry point, before voter is reached)</text>
+  <text x="900" y="521" font-size="7.5" fill="#475569">ROLE_USER POST/PUT/DELETE → 403 (passes firewall, voter returns ACCESS_DENIED)</text>
+
+  <!-- ⑥ JWT Authentication -->
+  <line x1="892" y1="539" x2="1372" y2="539" stroke="#1e293b" stroke-width="1"/>
+  <text x="893" y="555" font-size="11" font-weight="700" fill="#e2e8f0">⑥ JWT Authentication Flow</text>
+
+  <rect x="892" y="561" width="490" height="218" rx="6" fill="#090f1e" stroke="#ca8a04" stroke-width="1"/>
+  <text x="900" y="577" font-size="8.5" fill="#fbbf24" font-weight="600">Login  (POST /api/auth/login)</text>
+  <text x="900" y="589" font-size="8" fill="#fde68a">  json_login → UserRecord loaded by email → password verified</text>
+  <text x="900" y="601" font-size="8" fill="#fde68a">  LexikJWT creates signed token with user.getRoles() in payload</text>
+  <text x="900" y="613" font-size="8" fill="#fde68a">  Response: {"token": "&lt;signed-jwt&gt;"}</text>
+  <line x1="900" y1="623" x2="1372" y2="623" stroke="#1e293b" stroke-width="1"/>
+  <text x="900" y="637" font-size="8.5" fill="#fbbf24" font-weight="600">Authenticated requests</text>
+  <text x="900" y="649" font-size="8" fill="#fde68a">  Authorization: Bearer &lt;token&gt;</text>
+  <text x="900" y="661" font-size="8" fill="#fde68a">  JWTAuthenticator decodes token → loads UserRecord from DB</text>
+  <text x="900" y="673" font-size="8" fill="#fde68a">  JWTPostAuthenticationToken($user, $fw, $user-&gt;getRoles())</text>
+  <text x="900" y="685" font-size="8" fill="#fde68a">  token.getRoleNames() = ['ROLE_ADMIN', 'ROLE_USER'] or ['ROLE_USER']</text>
+  <line x1="900" y1="695" x2="1372" y2="695" stroke="#1e293b" stroke-width="1"/>
+  <text x="900" y="709" font-size="8.5" fill="#fbbf24" font-weight="600">Logout  (POST /api/auth/logout)</text>
+  <text x="900" y="721" font-size="8" fill="#fde68a">  JWT id (jti claim) stored in Symfony cache (blocklist)</text>
+  <text x="900" y="733" font-size="8" fill="#fde68a">  JwtBlocklistListener checks each request → 401 if blocklisted</text>
+  <line x1="900" y1="743" x2="1372" y2="743" stroke="#1e293b" stroke-width="1"/>
+  <text x="900" y="755" font-size="7.5" fill="#334155">Note: KernelBoot uses debug=false (App_KernelTestContainer). After adding new voters,</text>
+  <text x="900" y="767" font-size="7.5" fill="#334155">run rm -rf var/cache/test — cache:clear --env=test only rebuilds the debug container.</text>
+
+</svg>
+</body>
+</html>

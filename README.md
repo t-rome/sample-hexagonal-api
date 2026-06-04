@@ -30,6 +30,7 @@ This project serves as a concrete, runnable example of how to combine:
 
 - [**Hexagonal Architecture Diagram**](docs/diagrams/architecture.html) — Domain boundaries, application layer (commands/queries), and infrastructure adapters across all three bounded contexts.
 - [**Testing Strategy**](docs/diagrams/testing.html) — Quality gates, test pyramid, and the QA pipeline from static analysis through BDD acceptance tests.
+- [**Security & Authorization**](docs/diagrams/security.html) — Role hierarchy, access control matrix, ProductVoter architecture, and JWT authentication flow.
 
 ### Hexagonal Architecture
 
@@ -66,6 +67,20 @@ Domain events decouple bounded contexts. When an order is placed, an `OrderPlace
 ### API-First Approach
 
 The OpenAPI specification lives in `docs/openapi.yaml` and is the source of truth for the API contract. It is built from modular files under `api-contract/` (paths and schemas) and validated as part of the QA pipeline before any tests run.
+
+### Security & Authorization
+
+Access control uses Symfony's role hierarchy and a dedicated voter:
+
+| Role | Granted via | Can do |
+|---|---|---|
+| Public | No token | Read products, read orders, auth endpoints, health |
+| `ROLE_USER` | Registration | Everything public + place and pay orders |
+| `ROLE_ADMIN` | Assigned in DB | Everything public + create, update, and delete products |
+
+`ROLE_ADMIN` implies `ROLE_USER` via Symfony's role hierarchy — admins can also place and pay orders.
+
+Product write operations are enforced by `ProductVoter` (`src/Product/Infrastructure/Security/`), a Symfony voter that checks `ROLE_ADMIN` on the token and returns `403 Access denied.` for authenticated users with insufficient privileges. See the [Security & Authorization diagram](docs/diagrams/security.html) for a full access matrix and flow.
 
 ---
 
@@ -152,10 +167,9 @@ All project workflows are wired up as Composer scripts so there is a single, con
 
 | Command | Description |
 |---|---|
-| `composer app:test` | Run the complete test suite (unit + functional + Behat) |
-| `composer app:test:unit` | Unit tests only |
-| `composer app:test:functional` | Functional/integration tests only |
-| `composer app:behat` | BDD acceptance tests via Behat |
+| `composer app:test` | PHPUnit unit tests (`tests/Unit/`) |
+| `composer app:test:unit` | PHPUnit unit tests (explicit path) |
+| `composer app:behat` | BDD acceptance tests via Behat (7 feature files, 29 scenarios) |
 
 ### Database
 
@@ -186,17 +200,17 @@ The full API is described in [`docs/openapi.yaml`](docs/openapi.yaml).
 - `POST /api/auth/logout` — Invalidate the current JWT token
 
 **Products** — `/api/products`
-- `GET /api/products` — List products
-- `POST /api/products` — Create a product
-- `GET /api/products/{id}` — Get a product
-- `PUT /api/products/{id}` — Update a product
-- `DELETE /api/products/{id}` — Delete a product
+- `GET /api/products` — List products _(public)_
+- `GET /api/products/{id}` — Get a product _(public)_
+- `POST /api/products` — Create a product `[ROLE_ADMIN]`
+- `PUT /api/products/{id}` — Update a product `[ROLE_ADMIN]`
+- `DELETE /api/products/{id}` — Delete a product `[ROLE_ADMIN]`
 
 **Orders** — `/api/orders`
-- `POST /api/orders` — Place an order
-- `PATCH /api/orders/{id}/pay` — Pay an order (transitions `pending → confirmed`)
-- `GET /api/orders` — List orders
-- `GET /api/orders/{id}` — Get an order
+- `GET /api/orders` — List orders _(public)_
+- `GET /api/orders/{id}` — Get an order _(public)_
+- `POST /api/orders` — Place an order `[ROLE_USER]`
+- `PATCH /api/orders/{id}/pay` — Pay an order (transitions `pending → confirmed`) `[ROLE_USER]`
 
 > **Pluggable ports on `/pay`** — The handler depends on two interfaces, not concrete implementations:
 > - `PaymentGatewayInterface` — currently wired to `FakePaymentGateway` (always succeeds). Swap for a real adapter (`StripePaymentGateway`, `AdyenPaymentGateway`, …) in `config/services.yaml`.
@@ -251,7 +265,7 @@ Run with: `composer app:test:unit`
 
 Written in Gherkin and executed by Behat. Make full HTTP round-trips against a real test database and describe behaviour from an outside-in perspective using natural language scenarios. Each scenario that returns a JSON body includes an `And the response matches the OpenAPI spec` step — meaning **every acceptance test simultaneously validates behaviour and verifies that the concrete endpoint implementation conforms to the API contract**.
 
-Covers: authentication flows, product CRUD, order placement, payment, and all error cases (401, 404, 409, 422).
+Covers: authentication flows, product CRUD with `ROLE_ADMIN` enforcement (401, 403), order placement and payment, and all error cases (401, 403, 404, 409, 422).
 
 Run with: `composer app:behat`
 
