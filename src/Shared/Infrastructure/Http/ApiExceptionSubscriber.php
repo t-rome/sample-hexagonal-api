@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 final class ApiExceptionSubscriber implements EventSubscriberInterface
@@ -50,6 +51,10 @@ final class ApiExceptionSubscriber implements EventSubscriberInterface
 
     private function buildResponse(\Throwable $exception): ?JsonResponse
     {
+        if ($exception instanceof AccessDeniedException) {
+            return new JsonResponse(['error' => 'Access denied.'], Response::HTTP_FORBIDDEN);
+        }
+
         if ($exception instanceof ProductNotFoundException || $exception instanceof OrderNotFoundException) {
             return new JsonResponse(['error' => $exception->getMessage()], Response::HTTP_NOT_FOUND);
         }

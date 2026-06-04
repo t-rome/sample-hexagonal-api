@@ -44,9 +44,20 @@ class DatabaseContext implements Context
     #[Given('a user exists with email :email and password :password')]
     public function aUserExistsWithEmailAndPassword(string $email, string $password): void
     {
+        $this->createUser($email, $password, ['ROLE_USER']);
+    }
+
+    #[Given('an admin exists with email :email and password :password')]
+    public function anAdminExistsWithEmailAndPassword(string $email, string $password): void
+    {
+        $this->createUser($email, $password, ['ROLE_ADMIN']);
+    }
+
+    private function createUser(string $email, string $password, array $roles): void
+    {
         $user = new UserRecord();
         $user->email = $email;
-        $user->roles = ['ROLE_USER'];
+        $user->roles = $roles;
         $user->password = $this->hasher->hashPassword($user, $password);
         $this->em->persist($user);
         $this->em->flush();

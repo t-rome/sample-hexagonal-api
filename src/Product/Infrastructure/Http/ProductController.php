@@ -17,6 +17,7 @@ use App\Product\Application\Query\ListProducts\ListProductsHandler;
 use App\Product\Application\Query\ListProducts\ListProductsQuery;
 use App\Product\Infrastructure\Http\Dto\CreateProductDto;
 use App\Product\Infrastructure\Http\Dto\UpdateProductDto;
+use App\Product\Infrastructure\Security\ProductVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,6 +51,8 @@ class ProductController extends AbstractController
     #[Route('', methods: ['POST'])]
     public function create(#[MapRequestPayload] CreateProductDto $dto): JsonResponse
     {
+        $this->denyAccessUnlessGranted(ProductVoter::CREATE);
+
         $product = $this->createHandler->handle(
             new CreateProductCommand($dto->name, $dto->description, $dto->price, $dto->stock),
         );
@@ -60,6 +63,8 @@ class ProductController extends AbstractController
     #[Route('/{id}', methods: ['PUT'])]
     public function update(int $id, #[MapRequestPayload] UpdateProductDto $dto): JsonResponse
     {
+        $this->denyAccessUnlessGranted(ProductVoter::UPDATE);
+
         $product = $this->updateHandler->handle(
             new UpdateProductCommand($id, $dto->name, $dto->description, $dto->price),
         );
@@ -70,6 +75,8 @@ class ProductController extends AbstractController
     #[Route('/{id}', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
+        $this->denyAccessUnlessGranted(ProductVoter::DELETE);
+
         $this->deleteHandler->handle(new DeleteProductCommand($id));
 
         return $this->json(null, Response::HTTP_NO_CONTENT);
