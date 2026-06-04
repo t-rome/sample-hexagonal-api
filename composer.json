@@ -78,11 +78,13 @@
         "app:db:reset": "php bin/console app:db:reset --env=dev",
         "app:db:reset:test": "php bin/console app:db:reset --env=test",
         "app:openapi:build": "php bin/console app:openapi:build",
+        "app:openapi:check-sync": "php bin/console app:openapi:check-sync",
         "app:validate:openapi": "php bin/validate-openapi docs/openapi.yaml",
         "app:behat": "vendor/bin/behat",
         "app:cs:fix": "vendor/bin/php-cs-fixer fix",
         "app:cs:check": "vendor/bin/php-cs-fixer fix --dry-run --diff",
         "app:qa": [
+            "@app:openapi:check-sync",
             "@app:validate:openapi",
             "@app:cs:check",
             "@app:analyse",

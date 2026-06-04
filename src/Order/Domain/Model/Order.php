@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Order\Domain\Model;
 
+use App\Order\Domain\Event\OrderPaid;
 use App\Order\Domain\Event\OrderPlaced;
+use App\Order\Domain\Exception\OrderNotPayableException;
 use App\Shared\Domain\AggregateRoot;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Uid\UuidV7;
@@ -13,15 +15,16 @@ class Order
 {
     use AggregateRoot;
 
-    public const STATUS_PENDING = 'pending';
-
     /** @param OrderItem[] $items */
     private function __construct(
+        // Domain identity: generated before persistence so domain events carry a stable,
+        // non-guessable ID without depending on a DB auto-increment.
         private readonly Uuid $uuid,
+        // Surrogate key assigned by the DB; null until first persist.
         private readonly ?int $id,
         private readonly int $userId,
         private readonly array $items,
-        private readonly string $status,
+        private OrderStatus $status,
         private readonly \DateTimeImmutable $createdAt,
     ) {
     }
@@ -31,7 +34,7 @@ class Order
     {
         $uuid = new UuidV7();
         $createdAt = new \DateTimeImmutable();
-        $order = new self($uuid, null, $userId, $items, self::STATUS_PENDING, $createdAt);
+        $order = new self($uuid, null, $userId, $items, OrderStatus::Pending, $createdAt);
         $order->recordEvent(new OrderPlaced($uuid, $userId, $order->getTotalPrice(), $createdAt, $items));
 
         return $order;
@@ -43,10 +46,20 @@ class Order
         int $id,
         int $userId,
         array $items,
-        string $status,
+        OrderStatus $status,
         \DateTimeImmutable $createdAt,
     ): self {
         return new self($uuid, $id, $userId, $items, $status, $createdAt);
+    }
+
+    public function pay(): void
+    {
+        if (OrderStatus::Pending !== $this->status) {
+            throw new OrderNotPayableException($this->id ?? 0, $this->status);
+        }
+
+        $this->status = OrderStatus::Confirmed;
+        $this->recordEvent(new OrderPaid($this->uuid, $this->userId, $this->getTotalPrice(), new \DateTimeImmutable()));
     }
 
     public function getTotalPrice(): float
@@ -75,7 +88,7 @@ class Order
         return $this->items;
     }
 
-    public function getStatus(): string
+    public function getStatus(): OrderStatus
     {
         return $this->status;
     }

@@ -65,7 +65,7 @@ Domain events decouple bounded contexts. When an order is placed, an `OrderPlace
 
 ### API-First Approach
 
-The OpenAPI specification lives in `docs/openapi.yaml` and is the source of truth for the API contract. It is built from modular files under `docs/openapi/` (paths and schemas) and validated as part of the QA pipeline before any tests run.
+The OpenAPI specification lives in `docs/openapi.yaml` and is the source of truth for the API contract. It is built from modular files under `api-contract/` (paths and schemas) and validated as part of the QA pipeline before any tests run.
 
 ---
 
@@ -75,6 +75,8 @@ The OpenAPI specification lives in `docs/openapi.yaml` and is the source of trut
 
 - Docker & Docker Compose
 - PHP 8.4 and Composer available locally
+
+> **Note:** JWT keys (`config/jwt/private.pem` / `public.pem`) are committed for convenience so you can clone and run immediately. **Replace them before deploying to any real environment.**
 
 ### 1. Build and start the stack
 
@@ -166,7 +168,8 @@ All project workflows are wired up as Composer scripts so there is a single, con
 
 | Command | Description |
 |---|---|
-| `composer app:openapi:build` | Merge modular OpenAPI files into `docs/openapi.yaml` |
+| `composer app:openapi:build` | Merge `api-contract/` fragments into `docs/openapi.yaml` |
+| `composer app:openapi:check-sync` | Verify `docs/openapi.yaml` is in sync with `api-contract/` |
 | `composer app:validate:openapi` | Validate `docs/openapi.yaml` against the OpenAPI spec |
 
 ---
@@ -191,8 +194,15 @@ The full API is described in [`docs/openapi.yaml`](docs/openapi.yaml).
 
 **Orders** — `/api/orders`
 - `POST /api/orders` — Place an order
+- `PATCH /api/orders/{id}/pay` — Pay an order (transitions `pending → confirmed`)
 - `GET /api/orders` — List orders
 - `GET /api/orders/{id}` — Get an order
+
+> **Pluggable ports on `/pay`** — The handler depends on two interfaces, not concrete implementations:
+> - `PaymentGatewayInterface` — currently wired to `FakePaymentGateway` (always succeeds). Swap for a real adapter (`StripePaymentGateway`, `AdyenPaymentGateway`, …) in `config/services.yaml`.
+> - `NotificationServiceInterface` — on success, `NotifyUserOnOrderPaid` fires and calls this port. Currently wired to `FakeNotificationService` (logs via Monolog). Swap for email, SMS, or push adapters the same way.
+>
+> **Design note:** Payment is modelled here as a port inside the Order bounded context, which is appropriate for a simple flow. In a system with richer payment concerns — refunds, partial payments, retries, reconciliation, or PCI scope isolation — Payment would deserve its own bounded context with a `PaymentIntent` aggregate, its own status lifecycle, and its own repository.
 
 **System**
 - `GET /health` — Health check (public)
@@ -237,28 +247,21 @@ Test individual classes in isolation — no database, no HTTP, no framework. Foc
 
 Run with: `composer app:test:unit`
 
-### Functional Tests (`tests/Functional/`)
-
-Full HTTP round-trips against a real test database. Each test boots the Symfony kernel, hits an endpoint, and asserts on the response. Covers:
-- Authentication flows (register, login, logout)
-- Product CRUD endpoints
-- Order placement and retrieval
-
-Run with: `composer app:test:functional`
-
 ### BDD Acceptance Tests (`features/`, `tests/Behat/`)
 
-Written in Gherkin (`features/product/products.feature`) and executed by Behat. Describe behaviour from an outside-in perspective using natural language scenarios. Useful for documenting and validating complete user-facing flows.
+Written in Gherkin and executed by Behat. Make full HTTP round-trips against a real test database and describe behaviour from an outside-in perspective using natural language scenarios. Each scenario that returns a JSON body includes an `And the response matches the OpenAPI spec` step — meaning **every acceptance test simultaneously validates behaviour and verifies that the concrete endpoint implementation conforms to the API contract**.
+
+Covers: authentication flows, product CRUD, order placement, payment, and all error cases (401, 404, 409, 422).
 
 Run with: `composer app:behat`
 
 ### QA Pipeline
 
 ```
-app:validate:openapi  →  app:cs:check  →  app:analyse  →  app:test  →  app:behat
+app:openapi:check-sync  →  app:validate:openapi  →  app:cs:check  →  app:analyse  →  app:test  →  app:behat
 ```
 
-Running `composer app:qa` executes all five gates in order. The pipeline fails fast — a broken contract or a style violation stops the run before any tests are executed.
+Running `composer app:qa` executes all six gates in order. The pipeline fails fast — a stale or invalid contract stops the run before any code analysis or tests are executed.
 
 ---
 

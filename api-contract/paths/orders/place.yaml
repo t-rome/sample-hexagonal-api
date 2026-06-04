@@ -23,8 +23,8 @@
             schema:
               $ref: '#/components/schemas/ErrorResponse'
       '422':
-        description: Validation error
+        description: Validation error or business rule violation (e.g. insufficient stock)
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ValidationErrorResponse'
+              $ref: '#/components/schemas/ErrorResponse'

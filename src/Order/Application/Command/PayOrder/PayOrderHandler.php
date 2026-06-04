@@ -1,0 +1,41 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Order\Application\Command\PayOrder;
+
+use App\Order\Domain\Exception\OrderNotFoundException;
+use App\Order\Domain\Model\Order;
+use App\Order\Domain\PaymentGatewayInterface;
+use App\Order\Domain\Repository\OrderRepositoryInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+
+final readonly class PayOrderHandler
+{
+    public function __construct(
+        private OrderRepositoryInterface $orderRepository,
+        private PaymentGatewayInterface $paymentGateway,
+        private EventDispatcherInterface $eventDispatcher,
+    ) {
+    }
+
+    public function handle(PayOrderCommand $command): Order
+    {
+        $order = $this->orderRepository->findById($command->orderId);
+
+        if (null === $order) {
+            throw new OrderNotFoundException($command->orderId);
+        }
+
+        $this->paymentGateway->charge($order->getUuid(), $order->getTotalPrice());
+
+        $order->pay();
+        $savedOrder = $this->orderRepository->save($order);
+
+        foreach ($order->releaseEvents() as $event) {
+            $this->eventDispatcher->dispatch($event);
+        }
+
+        return $savedOrder;
+    }
+}

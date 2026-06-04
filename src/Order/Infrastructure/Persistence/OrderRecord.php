@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Order\Infrastructure\Persistence;
 
+use App\Order\Domain\Model\OrderStatus;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -25,8 +26,8 @@ class OrderRecord
     #[ORM\Column(name: 'user_id')]
     public int $userId;
 
-    #[ORM\Column(length: 50)]
-    public string $status;
+    #[ORM\Column(enumType: OrderStatus::class)]
+    public OrderStatus $status;
 
     #[ORM\Column]
     public \DateTimeImmutable $createdAt;

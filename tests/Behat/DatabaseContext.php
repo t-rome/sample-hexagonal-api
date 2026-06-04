@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Behat;
 
+use App\Order\Domain\Model\OrderStatus;
+use App\Order\Infrastructure\Persistence\OrderItemRecord;
+use App\Order\Infrastructure\Persistence\OrderRecord;
 use App\Product\Infrastructure\Persistence\ProductRecord;
 use App\User\Infrastructure\Persistence\UserRecord;
 use Behat\Behat\Context\Context;
@@ -14,6 +17,7 @@ use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Uid\Uuid;
 
 class DatabaseContext implements Context
 {
@@ -61,6 +65,32 @@ class DatabaseContext implements Context
             $product->createdAt = new \DateTimeImmutable();
             $this->em->persist($product);
         }
+        $this->em->flush();
+        $this->em->clear();
+    }
+
+    #[Given('an order exists for the product :name')]
+    public function anOrderExistsForTheProduct(string $name): void
+    {
+        $user = $this->em->getRepository(UserRecord::class)->findOneBy([])
+            ?? throw new \RuntimeException('No user found — ensure a user exists first');
+        $product = $this->em->getRepository(ProductRecord::class)->findOneBy(['name' => $name])
+            ?? throw new \RuntimeException("Product not found: \"{$name}\"");
+
+        $order = new OrderRecord();
+        $order->uuid = Uuid::v7();
+        $order->userId = $user->id;
+        $order->status = OrderStatus::Pending;
+        $order->createdAt = new \DateTimeImmutable();
+
+        $item = new OrderItemRecord();
+        $item->order = $order;
+        $item->productId = $product->id;
+        $item->quantity = 1;
+        $item->unitPrice = $product->price;
+        $order->items->add($item);
+
+        $this->em->persist($order);
         $this->em->flush();
         $this->em->clear();
     }

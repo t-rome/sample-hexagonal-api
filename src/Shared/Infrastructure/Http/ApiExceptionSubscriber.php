@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Http;
 
 use App\Order\Domain\Exception\OrderNotFoundException;
+use App\Order\Domain\Exception\OrderNotPayableException;
+use App\Order\Domain\Exception\PaymentFailedException;
 use App\Product\Domain\Exception\InsufficientStockException;
 use App\Product\Domain\Exception\ProductNotFoundException;
 use App\User\Domain\Exception\UserAlreadyExistsException;
@@ -50,6 +52,14 @@ final class ApiExceptionSubscriber implements EventSubscriberInterface
     {
         if ($exception instanceof ProductNotFoundException || $exception instanceof OrderNotFoundException) {
             return new JsonResponse(['error' => $exception->getMessage()], Response::HTTP_NOT_FOUND);
+        }
+
+        if ($exception instanceof OrderNotPayableException) {
+            return new JsonResponse(['error' => $exception->getMessage()], Response::HTTP_CONFLICT);
+        }
+
+        if ($exception instanceof PaymentFailedException) {
+            return new JsonResponse(['error' => $exception->getMessage()], Response::HTTP_PAYMENT_REQUIRED);
         }
 
         if ($exception instanceof UserAlreadyExistsException) {

@@ -59,9 +59,9 @@
   <rect x="566" y="90" width="260" height="78" rx="5" fill="#06111e" stroke="#0891b2" stroke-width="1.5"/>
   <text x="696" y="108" text-anchor="middle" font-size="10" font-weight="700" fill="#22d3ee">OpenAPI Spec Validation</text>
   <text x="696" y="122" text-anchor="middle" font-size="8" fill="#7dd3fc">bin/validate-openapi docs/openapi.yaml</text>
-  <text x="696" y="135" text-anchor="middle" font-size="7.5" fill="#67e8f9">docs/openapi/ · base.yaml · paths/ · schemas/</text>
-  <text x="696" y="148" text-anchor="middle" font-size="7.5" fill="#0e7490">Build: app:openapi:build → docs/openapi.yaml</text>
-  <text x="696" y="161" text-anchor="middle" font-size="7.5" fill="#155e75">composer app:validate:openapi</text>
+  <text x="696" y="135" text-anchor="middle" font-size="7.5" fill="#67e8f9">api-contract/ · base.yaml · paths/ · schemas/</text>
+  <text x="696" y="148" text-anchor="middle" font-size="7.5" fill="#0e7490">check-sync: fragments == docs/openapi.yaml</text>
+  <text x="696" y="161" text-anchor="middle" font-size="7.5" fill="#155e75">app:openapi:check-sync · app:validate:openapi</text>
 
   <!-- Arrow down -->
   <line x1="430" y1="168" x2="430" y2="182" stroke="#475569" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#arrGray)"/>
@@ -76,137 +76,129 @@
   <text x="215" y="215" text-anchor="middle" font-size="9.5" font-weight="700" fill="#2dd4bf">Domain Models</text>
   <text x="30" y="229" font-size="8" fill="#5eead4">ProductTest (8 Tests): create · update · reserveStock</text>
   <text x="30" y="241" font-size="7.5" fill="#14b8a6">  → InsufficientStockException when qty &gt; stock</text>
-  <text x="30" y="253" font-size="8" fill="#5eead4">OrderTest: Order Aggregate · place() · releaseEvents()</text>
+  <text x="30" y="253" font-size="8" fill="#5eead4">OrderTest: Order Aggregate · place() · pay() · status guard</text>
   <text x="30" y="265" font-size="8" fill="#5eead4">OrderItemTest: Price &amp; Quantity behavior</text>
 
   <!-- Right: Application Handlers -->
   <text x="615" y="215" text-anchor="middle" font-size="9.5" font-weight="700" fill="#2dd4bf">Application Handlers</text>
-  <text x="423" y="229" font-size="8" fill="#5eead4">PlaceOrderHandlerTest · CreateProductHandlerTest</text>
-  <text x="423" y="241" font-size="8" fill="#5eead4">UpdateProductHandlerTest · DeleteProductHandlerTest</text>
-  <text x="423" y="253" font-size="8" fill="#5eead4">GetProductHandlerTest · ReserveStockOnOrderPlacedTest</text>
-  <text x="423" y="265" font-size="7.5" fill="#0f766e">Repository Interfaces mocked via createMock()</text>
+  <text x="423" y="229" font-size="8" fill="#5eead4">PlaceOrderHandlerTest · PayOrderHandlerTest</text>
+  <text x="423" y="241" font-size="8" fill="#5eead4">CreateProductHandlerTest · UpdateProductHandlerTest</text>
+  <text x="423" y="253" font-size="7.5" fill="#5eead4">DeleteProductHandlerTest · GetProductHandlerTest</text>
+  <text x="423" y="265" font-size="7.5" fill="#0f766e">ReserveStockOnOrderPlacedTest · NotifyUserOnOrderPaidTest</text>
 
   <line x1="32" y1="277" x2="816" y2="277" stroke="#0a3b36" stroke-width="1"/>
   <text x="430" y="291" text-anchor="middle" font-size="7.5" fill="#134e4a">No DB access · pure business logic · fast · PHP TestCase without Symfony Kernel</text>
-  <text x="430" y="305" text-anchor="middle" font-size="7.5" fill="#134e4a">composer app:test:unit  →  php bin/phpunit tests/Unit</text>
+  <text x="430" y="305" text-anchor="middle" font-size="7.5" fill="#134e4a">composer app:test  →  php bin/phpunit tests/Unit</text>
   <text x="430" y="319" text-anchor="middle" font-size="7" fill="#0d4a45">KERNEL_CLASS not required · full isolation per test</text>
 
   <!-- Arrow down -->
   <line x1="430" y1="332" x2="430" y2="346" stroke="#475569" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#arrGray)"/>
 
-  <!-- ③ Functional Tests -->
-  <text x="430" y="356" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">③ Functional Tests + OpenAPI Validation (PHPUnit 13)</text>
+  <!-- ③ BDD Acceptance Tests (Behat) -->
+  <text x="430" y="356" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">③ BDD Acceptance Tests (Behat) — 26 Scenarios across 3 Features</text>
 
-  <rect x="22" y="361" width="804" height="150" rx="5" fill="#09200f" stroke="#16a34a" stroke-width="1.5"/>
-  <line x1="415" y1="369" x2="415" y2="503" stroke="#14532d" stroke-width="1"/>
-
-  <!-- Left: DatabaseTestCase -->
-  <text x="215" y="379" text-anchor="middle" font-size="9.5" font-weight="700" fill="#4ade80">DatabaseTestCase</text>
-  <text x="30" y="393" font-size="8" fill="#86efac">extends Symfony WebTestCase</text>
-  <text x="30" y="405" font-size="7.5" fill="#4ade80">setUp(): createClient() · EntityManager · OpenApiValidator</text>
-  <text x="30" y="417" font-size="7.5" fill="#4ade80">loadFixtures() → ORMExecutor + ORMPurger</text>
-  <text x="30" y="429" font-size="7.5" fill="#22c55e">  SET session_replication_role = replica (FK off)</text>
-  <text x="30" y="445" font-size="8" fill="#86efac">Controller Tests (real PostgreSQL):</text>
-  <text x="30" y="457" font-size="7.5" fill="#4ade80">ProductControllerTest (8): CRUD · Auth · 404 · 422</text>
-  <text x="30" y="469" font-size="7.5" fill="#4ade80">OrderControllerTest · AuthControllerTest</text>
-  <text x="30" y="481" font-size="7.5" fill="#22c55e">JWT via getJwtToken() → Bearer Token</text>
-
-  <!-- Right: OpenAPI Validation -->
-  <text x="615" y="379" text-anchor="middle" font-size="9.5" font-weight="700" fill="#4ade80">OpenAPI Response Validation</text>
-  <text x="423" y="393" font-size="7.5" fill="#86efac">assertMatchesOpenApiSpec(path, method, status)</text>
-  <text x="423" y="405" font-size="7.5" fill="#4ade80">  ↳ OpenApiValidator::assertResponse()</text>
-  <text x="423" y="417" font-size="7.5" fill="#22c55e">  ↳ resolveResponseSchema() — spec['paths'][…]</text>
-  <text x="423" y="429" font-size="7.5" fill="#22c55e">  ↳ resolveRefs() — $ref: '#/components/schemas/X'</text>
-  <text x="423" y="441" font-size="7.5" fill="#22c55e">  ↳ normalizeNullable() — nullable:true → [T, null]</text>
-  <text x="423" y="453" font-size="7.5" fill="#22c55e">  ↳ opis/json-schema Validator::validate()</text>
-  <text x="423" y="465" font-size="7.5" fill="#86efac">✓ isValid() → Test passed</text>
-  <text x="423" y="477" font-size="7.5" fill="#f87171">✗ !isValid() → AssertionFailedError + Diff</text>
-
-  <line x1="32" y1="492" x2="816" y2="492" stroke="#14532d" stroke-width="1"/>
-  <text x="430" y="504" text-anchor="middle" font-size="7.5" fill="#166534">Real Symfony Kernel · Real PostgreSQL · HTTP responses validated against OpenAPI spec · APP_ENV=test · exceptions via ApiExceptionSubscriber</text>
-
-  <!-- Arrow down -->
-  <line x1="430" y1="511" x2="430" y2="525" stroke="#475569" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#arrGray)"/>
-
-  <!-- ④ Behat BDD -->
-  <text x="430" y="535" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">④ BDD Acceptance Tests (Behat)</text>
-
-  <rect x="22" y="540" width="804" height="115" rx="5" fill="#1a1200" stroke="#ca8a04" stroke-width="1.5"/>
-  <line x1="415" y1="548" x2="415" y2="648" stroke="#451a03" stroke-width="1"/>
+  <rect x="22" y="361" width="804" height="234" rx="5" fill="#1a1200" stroke="#ca8a04" stroke-width="1.5"/>
+  <line x1="415" y1="369" x2="415" y2="557" stroke="#451a03" stroke-width="1"/>
 
   <!-- Left: Gherkin Scenarios -->
-  <text x="215" y="558" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fbbf24">Gherkin Scenarios</text>
-  <text x="30" y="572" font-size="7.5" fill="#fde68a">features/product/products.feature (8 scenarios)</text>
-  <text x="30" y="584" font-size="7.5" fill="#fde68a">Background: User + 2 products created</text>
-  <text x="30" y="596" font-size="7.5" fill="#fbbf24">List · Get · Get 404 · Create · Create 422</text>
-  <text x="30" y="608" font-size="7.5" fill="#fbbf24">Update · Delete · Auth: 401 without token</text>
-  <text x="30" y="620" font-size="7.5" fill="#d97706">Product ID resolved by name (resolveProductId)</text>
-  <text x="30" y="632" font-size="7.5" fill="#d97706">JWT: POST /api/auth/login → Bearer Token</text>
-  <text x="30" y="644" font-size="7" fill="#78350f">composer app:behat  →  vendor/bin/behat</text>
+  <text x="215" y="379" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fbbf24">Gherkin Scenarios</text>
+
+  <text x="30" y="393" font-size="8" fill="#fde68a" font-weight="600">features/product/products.feature (8 scenarios)</text>
+  <text x="30" y="405" font-size="7.5" fill="#d97706">  Background: User + 2 products created</text>
+  <text x="30" y="417" font-size="7.5" fill="#fbbf24">  List · Get · Get 404 · Create 401 (no auth)</text>
+  <text x="30" y="429" font-size="7.5" fill="#fbbf24">  Create · Create 422 · Update · Delete 204</text>
+
+  <text x="30" y="447" font-size="8" fill="#fde68a" font-weight="600">features/order/orders.feature (13 scenarios)</text>
+  <text x="30" y="459" font-size="7.5" fill="#d97706">  Background: User + 2 products (with stock)</text>
+  <text x="30" y="471" font-size="7.5" fill="#fbbf24">  List · Get · Get 404 · Place 401 · Place</text>
+  <text x="30" y="483" font-size="7.5" fill="#fbbf24">  Insuff. Stock 422 · Unknown 404 · Invalid 422</text>
+  <text x="30" y="495" font-size="7.5" fill="#fbbf24">  Pay · Pay 409 conflict · Pay 402 declined · Pay 401 · Pay 404</text>
+
+  <text x="30" y="513" font-size="8" fill="#fde68a" font-weight="600">features/auth/auth.feature (5 scenarios)</text>
+  <text x="30" y="525" font-size="7.5" fill="#d97706">  Background: User created</text>
+  <text x="30" y="537" font-size="7.5" fill="#fbbf24">  Login · Login fail 401 · Register · Duplicate 409 · Invalid 422</text>
+
+  <text x="215" y="553" font-size="7" fill="#78350f">composer app:behat  →  vendor/bin/behat  (features/ · 3 files · 26 scenarios)</text>
 
   <!-- Right: Context Classes -->
-  <text x="615" y="558" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fbbf24">Context Classes</text>
-  <text x="423" y="572" font-size="8" fill="#fde68a" font-weight="600">ApiContext</text>
-  <text x="423" y="584" font-size="7.5" fill="#fde68a">  HTTP GET/POST/PUT/DELETE · JWT-Auth</text>
-  <text x="423" y="596" font-size="7.5" fill="#fde68a">  reset(): client.restart() + token = null</text>
-  <text x="423" y="612" font-size="8" fill="#fde68a" font-weight="600">DatabaseContext</text>
-  <text x="423" y="624" font-size="7.5" fill="#fde68a">  DB reset · create user + products directly</text>
-  <text x="423" y="636" font-size="8" fill="#fde68a" font-weight="600">KernelBoot</text>
-  <text x="423" y="648" font-size="7.5" fill="#d97706">  Shared Symfony Kernel (static, once)</text>
+  <text x="615" y="379" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fbbf24">Context Classes</text>
+  <text x="423" y="393" font-size="8" fill="#fde68a" font-weight="600">ApiContext</text>
+  <text x="423" y="405" font-size="7.5" fill="#fde68a">  HTTP: GET/POST/PUT/PATCH/DELETE · JWT Auth</text>
+  <text x="423" y="417" font-size="7.5" fill="#fde68a">  resolveProductId / resolveOrderId (DB lookup by name)</text>
+  <text x="423" y="429" font-size="7.5" fill="#fde68a">  FakePaymentGateway: willSucceed() / willDecline()</text>
+  <text x="423" y="441" font-size="7.5" fill="#d97706">  reset(): client.restart() + token = null</text>
+  <text x="423" y="457" font-size="8" fill="#fde68a" font-weight="600">DatabaseContext</text>
+  <text x="423" y="469" font-size="7.5" fill="#fde68a">  BeforeScenario: resetDatabase()</text>
+  <text x="423" y="481" font-size="7.5" fill="#fde68a">  ORMExecutor([]) + FK bypass → clean state per scenario</text>
+  <text x="423" y="493" font-size="7.5" fill="#fde68a">  Creates user / products / orders via Doctrine ORM</text>
+  <text x="423" y="509" font-size="8" fill="#fde68a" font-weight="600">KernelBoot</text>
+  <text x="423" y="521" font-size="7.5" fill="#d97706">  Shared Symfony Kernel (static, once)</text>
+  <text x="423" y="533" font-size="7.5" fill="#d97706">  Both contexts share the same container → one DB state</text>
 
-  <!-- ⑤ composer app:qa Pipeline -->
-  <text x="430" y="668" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">⑤ composer app:qa — Full Quality Gate Pipeline</text>
+  <line x1="32" y1="563" x2="816" y2="563" stroke="#451a03" stroke-width="1"/>
+  <text x="430" y="575" text-anchor="middle" font-size="7.5" fill="#78350f">Real Symfony Kernel · Real PostgreSQL · APP_ENV=test · OpenAPI validated via "the response matches the OpenAPI spec" step</text>
+  <text x="430" y="585" text-anchor="middle" font-size="7" fill="#78350f">FakePaymentGateway bound in test container · "the payment gateway will decline" → FakePaymentGateway::willDecline()</text>
 
-  <!-- Pipeline boxes (start x=72, w=120, gap=12, badge w=44) -->
-  <rect x="72" y="674" width="120" height="42" rx="4" fill="#06111e" stroke="#0891b2" stroke-width="1.5"/>
-  <text x="132" y="691" text-anchor="middle" font-size="8" font-weight="700" fill="#22d3ee">validate:openapi</text>
-  <text x="132" y="707" text-anchor="middle" font-size="7" fill="#155e75">Spec Validation</text>
+  <!-- Arrow down -->
+  <line x1="430" y1="595" x2="430" y2="609" stroke="#475569" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#arrGray)"/>
 
-  <line x1="192" y1="695" x2="204" y2="695" stroke="#475569" stroke-width="1.5" marker-end="url(#arrGray)"/>
+  <!-- ④ composer app:qa Pipeline -->
+  <text x="430" y="619" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">④ composer app:qa — Full Quality Gate Pipeline</text>
 
-  <rect x="204" y="674" width="120" height="42" rx="4" fill="#140933" stroke="#7c3aed" stroke-width="1.5"/>
-  <text x="264" y="691" text-anchor="middle" font-size="8" font-weight="700" fill="#c4b5fd">cs:check</text>
-  <text x="264" y="707" text-anchor="middle" font-size="7" fill="#6d28d9">Code Style</text>
+  <!-- Pipeline boxes — 6 steps, narrower to fit -->
+  <rect x="22" y="625" width="96" height="42" rx="4" fill="#06111e" stroke="#0891b2" stroke-width="1.5"/>
+  <text x="70" y="642" text-anchor="middle" font-size="7.5" font-weight="700" fill="#22d3ee">check-sync</text>
+  <text x="70" y="658" text-anchor="middle" font-size="6.5" fill="#155e75">Sync Check</text>
 
-  <line x1="324" y1="695" x2="336" y2="695" stroke="#475569" stroke-width="1.5" marker-end="url(#arrGray)"/>
+  <line x1="118" y1="646" x2="128" y2="646" stroke="#475569" stroke-width="1.5" marker-end="url(#arrGray)"/>
 
-  <rect x="336" y="674" width="120" height="42" rx="4" fill="#0b1e3a" stroke="#0369a1" stroke-width="1.5"/>
-  <text x="396" y="691" text-anchor="middle" font-size="8" font-weight="700" fill="#38bdf8">analyse</text>
-  <text x="396" y="707" text-anchor="middle" font-size="7" fill="#1d4ed8">PHPStan Level 8</text>
+  <rect x="128" y="625" width="96" height="42" rx="4" fill="#06111e" stroke="#0891b2" stroke-width="1.5"/>
+  <text x="176" y="642" text-anchor="middle" font-size="7.5" font-weight="700" fill="#22d3ee">validate:openapi</text>
+  <text x="176" y="658" text-anchor="middle" font-size="6.5" fill="#155e75">Spec Validation</text>
 
-  <line x1="456" y1="695" x2="468" y2="695" stroke="#475569" stroke-width="1.5" marker-end="url(#arrGray)"/>
+  <line x1="224" y1="646" x2="234" y2="646" stroke="#475569" stroke-width="1.5" marker-end="url(#arrGray)"/>
 
-  <rect x="468" y="674" width="120" height="42" rx="4" fill="#041a19" stroke="#0d9488" stroke-width="1.5"/>
-  <text x="528" y="691" text-anchor="middle" font-size="8" font-weight="700" fill="#2dd4bf">test</text>
-  <text x="528" y="707" text-anchor="middle" font-size="7" fill="#0f766e">PHPUnit (Unit + Functional)</text>
+  <rect x="234" y="625" width="96" height="42" rx="4" fill="#140933" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="282" y="642" text-anchor="middle" font-size="7.5" font-weight="700" fill="#c4b5fd">cs:check</text>
+  <text x="282" y="658" text-anchor="middle" font-size="6.5" fill="#6d28d9">Code Style</text>
 
-  <line x1="588" y1="695" x2="600" y2="695" stroke="#475569" stroke-width="1.5" marker-end="url(#arrGray)"/>
+  <line x1="330" y1="646" x2="340" y2="646" stroke="#475569" stroke-width="1.5" marker-end="url(#arrGray)"/>
 
-  <rect x="600" y="674" width="120" height="42" rx="4" fill="#1a1200" stroke="#ca8a04" stroke-width="1.5"/>
-  <text x="660" y="691" text-anchor="middle" font-size="8" font-weight="700" fill="#fbbf24">behat</text>
-  <text x="660" y="707" text-anchor="middle" font-size="7" fill="#92400e">BDD Acceptance</text>
+  <rect x="340" y="625" width="96" height="42" rx="4" fill="#0b1e3a" stroke="#0369a1" stroke-width="1.5"/>
+  <text x="388" y="642" text-anchor="middle" font-size="7.5" font-weight="700" fill="#38bdf8">analyse</text>
+  <text x="388" y="658" text-anchor="middle" font-size="6.5" fill="#1d4ed8">PHPStan Level 8</text>
 
-  <line x1="720" y1="695" x2="732" y2="695" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arrGreen)"/>
+  <line x1="436" y1="646" x2="446" y2="646" stroke="#475569" stroke-width="1.5" marker-end="url(#arrGray)"/>
 
-  <rect x="732" y="674" width="44" height="42" rx="4" fill="#052e16" stroke="#16a34a" stroke-width="1.5"/>
-  <text x="754" y="693" text-anchor="middle" font-size="13" fill="#4ade80" font-weight="700">✓</text>
-  <text x="754" y="708" text-anchor="middle" font-size="7" fill="#22c55e">passed</text>
+  <rect x="446" y="625" width="96" height="42" rx="4" fill="#041a19" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="494" y="642" text-anchor="middle" font-size="7.5" font-weight="700" fill="#2dd4bf">test</text>
+  <text x="494" y="658" text-anchor="middle" font-size="6.5" fill="#0f766e">PHPUnit Unit</text>
+
+  <line x1="542" y1="646" x2="552" y2="646" stroke="#475569" stroke-width="1.5" marker-end="url(#arrGray)"/>
+
+  <rect x="552" y="625" width="96" height="42" rx="4" fill="#1a1200" stroke="#ca8a04" stroke-width="1.5"/>
+  <text x="600" y="642" text-anchor="middle" font-size="7.5" font-weight="700" fill="#fbbf24">behat</text>
+  <text x="600" y="658" text-anchor="middle" font-size="6.5" fill="#92400e">BDD + OpenAPI</text>
+
+  <line x1="648" y1="646" x2="658" y2="646" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arrGreen)"/>
+
+  <rect x="658" y="625" width="44" height="42" rx="4" fill="#052e16" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="680" y="644" text-anchor="middle" font-size="13" fill="#4ade80" font-weight="700">✓</text>
+  <text x="680" y="659" text-anchor="middle" font-size="7" fill="#22c55e">passed</text>
 
   <!-- Legend -->
-  <rect x="22" y="730" width="804" height="40" rx="4" fill="#0c1222" stroke="#1e293b" stroke-width="1"/>
-  <rect x="32" y="738" width="10" height="10" rx="2" fill="#140933" stroke="#7c3aed" stroke-width="1.5"/>
-  <text x="46" y="748" font-size="8" fill="#a78bfa">Code Style</text>
-  <rect x="108" y="738" width="10" height="10" rx="2" fill="#0b1e3a" stroke="#0369a1" stroke-width="1.5"/>
-  <text x="122" y="748" font-size="8" fill="#38bdf8">Static Analysis</text>
-  <rect x="234" y="738" width="10" height="10" rx="2" fill="#06111e" stroke="#0891b2" stroke-width="1.5"/>
-  <text x="248" y="748" font-size="8" fill="#22d3ee">OpenAPI Spec</text>
-  <rect x="348" y="738" width="10" height="10" rx="2" fill="#041a19" stroke="#0d9488" stroke-width="1.5"/>
-  <text x="362" y="748" font-size="8" fill="#2dd4bf">Unit Tests</text>
-  <rect x="428" y="738" width="10" height="10" rx="2" fill="#09200f" stroke="#16a34a" stroke-width="1.5"/>
-  <text x="442" y="748" font-size="8" fill="#4ade80">Functional + OpenAPI</text>
-  <rect x="582" y="738" width="10" height="10" rx="2" fill="#1a1200" stroke="#ca8a04" stroke-width="1.5"/>
-  <text x="596" y="748" font-size="8" fill="#fbbf24">BDD Acceptance</text>
-  <text x="430" y="762" text-anchor="middle" font-size="7.5" fill="#334155">KERNEL_CLASS=App\Kernel (phpunit.dist.xml) · APP_ENV=test · DATABASE_URL: postgresql://app:secret@localhost:5432/api</text>
+  <rect x="22" y="681" width="804" height="40" rx="4" fill="#0c1222" stroke="#1e293b" stroke-width="1"/>
+  <rect x="32" y="689" width="10" height="10" rx="2" fill="#06111e" stroke="#0891b2" stroke-width="1.5"/>
+  <text x="46" y="699" font-size="8" fill="#22d3ee">OpenAPI (sync + validate)</text>
+  <rect x="210" y="689" width="10" height="10" rx="2" fill="#140933" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="224" y="699" font-size="8" fill="#a78bfa">Code Style</text>
+  <rect x="300" y="689" width="10" height="10" rx="2" fill="#0b1e3a" stroke="#0369a1" stroke-width="1.5"/>
+  <text x="314" y="699" font-size="8" fill="#38bdf8">Static Analysis</text>
+  <rect x="420" y="689" width="10" height="10" rx="2" fill="#041a19" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="434" y="699" font-size="8" fill="#2dd4bf">Unit Tests</text>
+  <rect x="510" y="689" width="10" height="10" rx="2" fill="#1a1200" stroke="#ca8a04" stroke-width="1.5"/>
+  <text x="524" y="699" font-size="8" fill="#fbbf24">BDD + OpenAPI Validation</text>
+  <text x="430" y="713" text-anchor="middle" font-size="7.5" fill="#334155">phpunit.dist.xml: KERNEL_CLASS=App\Kernel · APP_ENV=test · behat.php: APP_ENV=test · DATABASE_URL: postgresql://app:secret@localhost:5432/api</text>
 
   <!-- ════════════════════════════════════════
        RIGHT PANEL — TECHNICAL DETAILS
@@ -216,41 +208,41 @@
   <text x="1130" y="105" text-anchor="middle" font-size="15" font-weight="700" fill="#f1f5f9">Technical Details</text>
   <line x1="892" y1="115" x2="1368" y2="115" stroke="#1e293b" stroke-width="1"/>
 
-  <!-- ⑥ OpenApiValidator -->
-  <text x="893" y="133" font-size="11" font-weight="700" fill="#e2e8f0">⑥ OpenApiValidator — Flow</text>
+  <!-- ⑤ OpenApiValidator -->
+  <text x="893" y="133" font-size="11" font-weight="700" fill="#e2e8f0">⑤ OpenApiValidator — Flow</text>
 
   <rect x="892" y="139" width="490" height="162" rx="6" fill="#090f1e" stroke="#16a34a" stroke-width="1"/>
-  <text x="900" y="155" font-size="8" fill="#64748b">assertMatchesOpenApiSpec(path, method, statusCode) — called after every HTTP request:</text>
+  <text x="900" y="155" font-size="8" fill="#64748b">"the response matches the OpenAPI spec" — ApiContext calls OpenApiValidator per scenario step:</text>
   <text x="900" y="169" font-size="8" fill="#86efac">1. Yaml::parseFile('docs/openapi.yaml') → spec[]</text>
-  <text x="900" y="181" font-size="8" fill="#4ade80">2. resolveResponseSchema(): spec['paths'][path][method]['responses'][status]</text>
-  <text x="900" y="193" font-size="8" fill="#4ade80">3. resolveRefs(): $ref: '#/components/schemas/X' → resolved inline</text>
-  <text x="900" y="205" font-size="8" fill="#4ade80">4. normalizeNullable(): nullable: true → type: [string, 'null']</text>
-  <text x="900" y="217" font-size="8" fill="#4ade80">5. opis\JsonSchema\Validator::validate(Helper::toJSON(body), schema)</text>
+  <text x="900" y="181" font-size="8" fill="#4ade80">2. resolveSpecPath(): match request URL to spec path (handles {id} params)</text>
+  <text x="900" y="193" font-size="8" fill="#4ade80">3. hasResponseSchema(): check if spec defines JSON schema for status → skip if not</text>
+  <text x="900" y="205" font-size="8" fill="#4ade80">4. resolveRefs(): $ref: '#/components/schemas/X' → resolved inline</text>
+  <text x="900" y="217" font-size="8" fill="#4ade80">5. normalizeNullable(): nullable: true → type: [T, 'null']  ·  opis/json-schema validate()</text>
   <line x1="900" y1="226" x2="1372" y2="226" stroke="#14532d" stroke-width="1"/>
   <text x="918" y="240" font-size="9" fill="#4ade80" font-weight="600">✓ isValid()</text>
-  <text x="984" y="240" font-size="8" fill="#64748b">→ Test passed</text>
+  <text x="984" y="240" font-size="8" fill="#64748b">→ Behat step passed</text>
   <text x="918" y="254" font-size="9" fill="#f87171" font-weight="600">✗ !isValid()</text>
-  <text x="984" y="254" font-size="8" fill="#64748b">→ AssertionFailedError with formatErrors() (incl. sub-errors)</text>
-  <text x="900" y="270" font-size="7.5" fill="#334155">Skipped for: empty body (JsonException) · non-JSON response (e.g. 204 No Content)</text>
-  <text x="900" y="282" font-size="7.5" fill="#334155">Used in: ProductControllerTest · OrderControllerTest · AuthControllerTest</text>
+  <text x="984" y="254" font-size="8" fill="#64748b">→ RuntimeException with formatErrors() (incl. sub-errors)</text>
+  <text x="900" y="270" font-size="7.5" fill="#334155">Skipped: JSON decode fails (no body) · spec has no schema defined for that status code</text>
+  <text x="900" y="282" font-size="7.5" fill="#334155">Used in: Behat ApiContext — "And the response matches the OpenAPI spec" (all 3 feature files)</text>
 
-  <!-- ⑦ DatabaseTestCase -->
+  <!-- ⑥ Behat Database Isolation -->
   <line x1="892" y1="311" x2="1372" y2="311" stroke="#1e293b" stroke-width="1"/>
-  <text x="893" y="327" font-size="11" font-weight="700" fill="#e2e8f0">⑦ DatabaseTestCase &amp; Test Isolation</text>
+  <text x="893" y="327" font-size="11" font-weight="700" fill="#e2e8f0">⑥ Behat Database Isolation (DatabaseContext)</text>
 
-  <rect x="892" y="333" width="490" height="118" rx="6" fill="#090f1e" stroke="#0369a1" stroke-width="1"/>
-  <text x="900" y="349" font-size="8.5" fill="#38bdf8" font-weight="600">setUp() — before each test:</text>
-  <text x="900" y="363" font-size="8" fill="#7dd3fc">  createClient() → KernelBrowser · getContainer()->get(EntityManagerInterface)</text>
-  <text x="900" y="375" font-size="8" fill="#7dd3fc">  new OpenApiValidator('docs/openapi.yaml') · loadFixtures($this->fixtures())</text>
-  <text x="900" y="391" font-size="8.5" fill="#38bdf8" font-weight="600">loadFixtures() — Database isolation:</text>
-  <text x="900" y="405" font-size="8" fill="#7dd3fc">  SET session_replication_role = replica  ← FK constraints disabled</text>
-  <text x="900" y="417" font-size="8" fill="#7dd3fc">  ORMExecutor(em, ORMPurger).execute(fixtures, append=false) → fresh seed</text>
-  <text x="900" y="429" font-size="8" fill="#7dd3fc">  SET session_replication_role = DEFAULT</text>
-  <text x="900" y="441" font-size="7.5" fill="#334155">Fixtures: UserFixture (Service, with Hasher) · ProductFixture · OrderFixture</text>
+  <rect x="892" y="333" width="490" height="118" rx="6" fill="#090f1e" stroke="#ca8a04" stroke-width="1"/>
+  <text x="900" y="349" font-size="8.5" fill="#fbbf24" font-weight="600">resetDatabase() — BeforeScenario hook, runs before every scenario:</text>
+  <text x="900" y="363" font-size="8" fill="#fde68a">  SET session_replication_role = replica  ← FK constraints disabled</text>
+  <text x="900" y="375" font-size="8" fill="#fde68a">  ORMExecutor($em, ORMPurger).execute([]) → truncates all tables</text>
+  <text x="900" y="387" font-size="8" fill="#fde68a">  SET session_replication_role = DEFAULT  ·  $em->clear()</text>
+  <text x="900" y="403" font-size="8.5" fill="#fbbf24" font-weight="600">Entity creation via Gherkin Given steps (no fixture files):</text>
+  <text x="900" y="417" font-size="8" fill="#fde68a">  aUserExistsWithEmailAndPassword() → UserRecord (hashed password via Hasher)</text>
+  <text x="900" y="429" font-size="8" fill="#fde68a">  theFollowingProductsExist() → ProductRecord(s) from Gherkin table</text>
+  <text x="900" y="441" font-size="7.5" fill="#334155">  anOrderExistsForTheProduct() → OrderRecord + OrderItemRecord via ORM</text>
 
-  <!-- ⑧ PHPStan -->
+  <!-- ⑦ PHPStan -->
   <line x1="892" y1="461" x2="1372" y2="461" stroke="#1e293b" stroke-width="1"/>
-  <text x="893" y="477" font-size="11" font-weight="700" fill="#e2e8f0">⑧ PHPStan Configuration</text>
+  <text x="893" y="477" font-size="11" font-weight="700" fill="#e2e8f0">⑦ PHPStan Configuration</text>
 
   <rect x="892" y="483" width="490" height="100" rx="6" fill="#090f1e" stroke="#0369a1" stroke-width="1"/>
   <text x="900" y="499" font-size="8.5" fill="#38bdf8" font-weight="600">phpstan.neon:</text>
@@ -261,31 +253,31 @@
   <text x="900" y="567" font-size="8" fill="#7dd3fc" font-family="monospace">  php -d memory_limit=512M vendor/bin/phpstan analyse</text>
   <text x="900" y="575" font-size="7.5" fill="#334155">  -d overrides php.ini (default 128M) · Vendor code is not analysed</text>
 
-  <!-- ⑨ Behat Context Architecture -->
+  <!-- ⑧ Behat Context Architecture -->
   <line x1="892" y1="593" x2="1372" y2="593" stroke="#1e293b" stroke-width="1"/>
-  <text x="893" y="609" font-size="11" font-weight="700" fill="#e2e8f0">⑨ Behat Context Architecture</text>
+  <text x="893" y="609" font-size="11" font-weight="700" fill="#e2e8f0">⑧ Behat Context Architecture</text>
 
   <rect x="892" y="615" width="490" height="120" rx="6" fill="#090f1e" stroke="#ca8a04" stroke-width="1"/>
   <text x="900" y="631" font-size="8.5" fill="#fbbf24" font-weight="600">KernelBoot — shared Symfony Kernel:</text>
   <text x="900" y="645" font-size="8" fill="#fde68a">  Kernel is booted once (static $kernel) · container() returns the service container</text>
-  <text x="900" y="657" font-size="8" fill="#fde68a">  Both contexts share the same container → one shared DB state</text>
+  <text x="900" y="657" font-size="8" fill="#fde68a">  Both contexts share the same container → one shared DB state per scenario</text>
   <text x="900" y="673" font-size="8.5" fill="#fbbf24" font-weight="600">ApiContext (BeforeScenario: reset)</text>
-  <text x="900" y="687" font-size="8" fill="#fde68a">  client.restart() + token = null · KernelBrowser · EntityManager · JWT-Login</text>
+  <text x="900" y="687" font-size="8" fill="#fde68a">  client.restart() + token = null · FakePaymentGateway::willSucceed() (reset to default)</text>
   <text x="900" y="701" font-size="8.5" fill="#fbbf24" font-weight="600">DatabaseContext (BeforeScenario: resetDatabase)</text>
-  <text x="900" y="715" font-size="8" fill="#fde68a">  session_replication_role → ORMExecutor([]) → em.clear() · Create user + products directly</text>
-  <text x="900" y="727" font-size="7.5" fill="#334155">behat.php configures APP_ENV=test · Both contexts registered in behat.yml</text>
+  <text x="900" y="715" font-size="8" fill="#fde68a">  FK bypass → ORMExecutor([]) → em.clear() · Creates user/products/orders directly via ORM</text>
+  <text x="900" y="727" font-size="7.5" fill="#334155">behat.php: 3 feature files under features/ · 2 contexts (DatabaseContext + ApiContext) · APP_ENV=test</text>
 
-  <!-- ⑩ Composer Scripts -->
+  <!-- ⑨ Composer Scripts -->
   <line x1="892" y1="745" x2="1372" y2="745" stroke="#1e293b" stroke-width="1"/>
-  <text x="893" y="761" font-size="11" font-weight="700" fill="#e2e8f0">⑩ Composer Scripts</text>
+  <text x="893" y="761" font-size="11" font-weight="700" fill="#e2e8f0">⑨ Composer Scripts</text>
 
   <rect x="892" y="767" width="490" height="60" rx="6" fill="#090f1e" stroke="#1e293b" stroke-width="1"/>
   <text x="900" y="782" font-size="8" fill="#7dd3fc" font-family="monospace">app:qa</text>
-  <text x="970" y="782" font-size="8" fill="#475569">→ validate:openapi · cs:check · analyse · test · behat</text>
+  <text x="970" y="782" font-size="8" fill="#475569">→ check-sync · validate:openapi · cs:check · analyse · test · behat</text>
   <text x="900" y="794" font-size="8" fill="#7dd3fc" font-family="monospace">app:test</text>
-  <text x="970" y="794" font-size="8" fill="#475569">→ php bin/phpunit  (Unit + Functional)</text>
-  <text x="900" y="806" font-size="8" fill="#7dd3fc" font-family="monospace">app:test:unit</text>
-  <text x="970" y="806" font-size="8" fill="#475569">→ php bin/phpunit tests/Unit</text>
+  <text x="970" y="794" font-size="8" fill="#475569">→ php bin/phpunit  (Unit tests only — no Functional dir)</text>
+  <text x="900" y="806" font-size="8" fill="#7dd3fc" font-family="monospace">app:behat</text>
+  <text x="970" y="806" font-size="8" fill="#475569">→ vendor/bin/behat  (3 feature files · 26 scenarios)</text>
   <text x="900" y="818" font-size="8" fill="#7dd3fc" font-family="monospace">app:cs:fix</text>
   <text x="970" y="818" font-size="8" fill="#475569">→ php-cs-fixer fix  (apply changes)</text>
 

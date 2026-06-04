@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Fixture;
 
+use App\Order\Domain\Model\OrderStatus;
 use App\Order\Infrastructure\Persistence\OrderItemRecord;
 use App\Order\Infrastructure\Persistence\OrderRecord;
 use App\Product\Infrastructure\Persistence\ProductRecord;
@@ -29,7 +30,7 @@ class OrderFixture extends Fixture implements DependentFixtureInterface
         $order = new OrderRecord();
         $order->uuid = Uuid::v7();
         $order->userId = $user->id;
-        $order->status = 'pending';
+        $order->status = OrderStatus::Pending;
         $order->createdAt = new \DateTimeImmutable('2026-05-03T10:00:00+00:00');
 
         $laptopItem = new OrderItemRecord();

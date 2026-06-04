@@ -19,15 +19,29 @@ services:
     App\:
         resource: '../src/'
 
+    App\Shared\Infrastructure\Console\OpenApiBuilder:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
     App\Shared\Infrastructure\Console\BuildOpenApiCommand:
         arguments:
             $projectDir: '%kernel.project_dir%'
 
+    App\Shared\Infrastructure\Console\CheckOpenApiSyncCommand:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
     App\Product\Domain\Repository\ProductRepositoryInterface:
-        class: App\Product\Infrastructure\Persistence\DoctrineProductRepository
+        class: App\Product\Infrastructure\Persistence\ProductRepository
 
     App\User\Domain\Repository\UserRepositoryInterface:
-        class: App\User\Infrastructure\Persistence\DoctrineUserRepository
+        class: App\User\Infrastructure\Persistence\UserRepository
 
     App\Order\Domain\Repository\OrderRepositoryInterface:
-        class: App\Order\Infrastructure\Persistence\DoctrineOrderRepository
+        class: App\Order\Infrastructure\Persistence\OrderRepository
+
+    App\Order\Domain\PaymentGatewayInterface:
+        class: App\Order\Infrastructure\Payment\FakePaymentGateway
+
+    App\Shared\Domain\NotificationServiceInterface:
+        class: App\Shared\Infrastructure\Notification\FakeNotificationService

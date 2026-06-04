@@ -20,6 +20,31 @@ final class OpenApiValidator
         $this->validator = new Validator();
     }
 
+    public function resolveSpecPath(string $path): string
+    {
+        if (isset($this->spec['paths'][$path])) {
+            return $path;
+        }
+
+        foreach (array_keys($this->spec['paths']) as $specPath) {
+            $parts = preg_split('~\{[^}]+\}~', $specPath);
+            $pattern = '~^'.implode('[^/]+', array_map(fn ($p) => preg_quote($p, '~'), $parts)).'$~';
+            if (preg_match($pattern, $path)) {
+                return $specPath;
+            }
+        }
+
+        throw new \InvalidArgumentException("No spec path matches: {$path}");
+    }
+
+    public function hasResponseSchema(string $specPath, string $method, int $statusCode): bool
+    {
+        $operation = $this->spec['paths'][$specPath][strtolower($method)] ?? null;
+        $response = $operation['responses'][(string) $statusCode] ?? null;
+
+        return isset($response['content']['application/json']['schema']);
+    }
+
     public function assertResponse(
         string $path,
         string $method,

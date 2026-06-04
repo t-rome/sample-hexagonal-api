@@ -28,7 +28,7 @@ final readonly class OrderView
             userId: $order->getUserId(),
             items: array_map(OrderItemView::fromDomain(...), $order->getItems()),
             totalPrice: $order->getTotalPrice(),
-            status: $order->getStatus(),
+            status: $order->getStatus()->value,
             createdAt: $order->getCreatedAt()->format(\DateTimeInterface::ATOM),
         );
     }

@@ -8,7 +8,7 @@ use App\Product\Domain\Model\Product;
 use App\Product\Domain\Repository\ProductRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class DoctrineProductRepository implements ProductRepositoryInterface
+final class ProductRepository implements ProductRepositoryInterface
 {
     public function __construct(
         private readonly EntityManagerInterface $em,

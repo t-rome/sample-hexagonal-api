@@ -8,7 +8,7 @@ use App\Order\Domain\Model\Order;
 use App\Order\Domain\Repository\OrderRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class DoctrineOrderRepository implements OrderRepositoryInterface
+final class OrderRepository implements OrderRepositoryInterface
 {
     public function __construct(
         private readonly EntityManagerInterface $em,

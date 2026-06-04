@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Order\Infrastructure\Http;
 
+use App\Order\Application\Command\PayOrder\PayOrderCommand;
+use App\Order\Application\Command\PayOrder\PayOrderHandler;
 use App\Order\Application\Command\PlaceOrder\OrderItemData;
 use App\Order\Application\Command\PlaceOrder\PlaceOrderCommand;
 use App\Order\Application\Command\PlaceOrder\PlaceOrderHandler;
@@ -25,6 +27,7 @@ class OrderController extends AbstractController
 {
     public function __construct(
         private readonly PlaceOrderHandler $placeHandler,
+        private readonly PayOrderHandler $payHandler,
         private readonly GetOrderHandler $getHandler,
         private readonly ListOrdersHandler $listHandler,
     ) {
@@ -40,6 +43,14 @@ class OrderController extends AbstractController
     public function get(int $id): JsonResponse
     {
         return $this->json($this->getHandler->handle(new GetOrderQuery($id)));
+    }
+
+    #[Route('/{id}/pay', methods: ['PATCH'])]
+    public function pay(int $id): JsonResponse
+    {
+        $order = $this->payHandler->handle(new PayOrderCommand($id));
+
+        return $this->json(OrderView::fromDomain($order));
     }
 
     #[Route('', methods: ['POST'])]

@@ -9,6 +9,7 @@ use App\Order\Application\Command\PlaceOrder\PlaceOrderCommand;
 use App\Order\Application\Command\PlaceOrder\PlaceOrderHandler;
 use App\Order\Domain\Model\Order;
 use App\Order\Domain\Model\OrderItem;
+use App\Order\Domain\Model\OrderStatus;
 use App\Order\Domain\Repository\OrderRepositoryInterface;
 use App\Product\Domain\Exception\ProductNotFoundException;
 use App\Product\Domain\Model\Product;
@@ -26,7 +27,7 @@ class PlaceOrderHandlerTest extends TestCase
             1,
             42,
             [OrderItem::create(1, 2, 9.99)],
-            Order::STATUS_PENDING,
+            OrderStatus::Pending,
             new \DateTimeImmutable(),
         );
     }

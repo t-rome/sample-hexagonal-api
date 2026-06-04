@@ -30,6 +30,7 @@ OrderView:
       example: 29.97
     status:
       type: string
+      enum: [pending, confirmed, shipped, delivered, cancelled]
       example: pending
     createdAt:
       type: string
