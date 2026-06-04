@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Product\Application\Query\GetProduct;
 
+use App\Product\Application\Query\ReadModel\ProductView;
 use App\Product\Domain\Exception\ProductNotFoundException;
 use App\Product\Domain\Repository\ProductRepositoryInterface;
 

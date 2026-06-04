@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Product\Application\Query\GetProduct;
+namespace App\Product\Application\Query\ReadModel;
 
 use App\Product\Domain\Model\Product;
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Product\Application\Query\ListProducts;
 
-use App\Product\Application\Query\GetProduct\ProductView;
+use App\Product\Application\Query\ReadModel\ProductView;
 use App\Product\Domain\Repository\ProductRepositoryInterface;
 
 final readonly class ListProductsHandler
