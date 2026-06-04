@@ -1,0 +1,15 @@
+OrderInput:
+  type: object
+  required:
+    - items
+  properties:
+    items:
+      type: array
+      minItems: 1
+      items:
+        $ref: '#/components/schemas/OrderItemInput'
+      example:
+        - productId: 1
+          quantity: 2
+        - productId: 3
+          quantity: 1

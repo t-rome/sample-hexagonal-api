@@ -1,0 +1,19 @@
+ProductInput:
+  type: object
+  required:
+    - name
+    - price
+  properties:
+    name:
+      type: string
+      maxLength: 255
+      example: Laptop
+    description:
+      type: string
+      nullable: true
+      example: A powerful laptop
+    price:
+      type: number
+      format: float
+      minimum: 0
+      example: 999.99

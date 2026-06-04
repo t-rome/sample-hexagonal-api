@@ -1,0 +1,12 @@
+/api/auth/logout:
+  post:
+    tags: [Auth]
+    summary: Invalidate the current JWT token
+    operationId: logout
+    security:
+      - bearerAuth: []
+    responses:
+      '204':
+        description: Token invalidated
+      '401':
+        description: Unauthorized

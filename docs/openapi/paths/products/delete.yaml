@@ -1,0 +1,24 @@
+/api/products/{id}:
+  delete:
+    tags: [Products]
+    summary: Delete a product
+    operationId: deleteProduct
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '204':
+        description: Product deleted
+      '401':
+        description: Unauthorized
+      '404':
+        description: Product not found
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'

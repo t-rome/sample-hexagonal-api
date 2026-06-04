@@ -1,0 +1,28 @@
+/api/products:
+  post:
+    tags: [Products]
+    summary: Create a new product
+    operationId: createProduct
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProductInput'
+    responses:
+      '201':
+        description: Product created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductView'
+      '401':
+        description: Unauthorized
+      '422':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidationErrorResponse'

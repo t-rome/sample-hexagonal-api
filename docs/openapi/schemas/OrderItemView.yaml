@@ -1,0 +1,17 @@
+OrderItemView:
+  type: object
+  properties:
+    productId:
+      type: integer
+      example: 1
+    quantity:
+      type: integer
+      example: 2
+    unitPrice:
+      type: number
+      format: float
+      example: 9.99
+    totalPrice:
+      type: number
+      format: float
+      example: 19.98

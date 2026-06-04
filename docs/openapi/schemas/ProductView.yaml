@@ -1,0 +1,21 @@
+ProductView:
+  type: object
+  properties:
+    id:
+      type: integer
+      example: 1
+    name:
+      type: string
+      example: Laptop
+    description:
+      type: string
+      nullable: true
+      example: A powerful laptop
+    price:
+      type: number
+      format: float
+      example: 999.99
+    createdAt:
+      type: string
+      format: date-time
+      example: '2026-05-01T10:00:00+00:00'

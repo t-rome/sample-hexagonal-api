@@ -1,0 +1,33 @@
+openapi: '3.0.3'
+
+info:
+  title: API
+  description: Product management REST API — DDD / Hexagonal Architecture
+  version: '1.0.0'
+
+servers:
+  - url: http://localhost:8000
+    description: Local dev server
+
+tags:
+  - name: System
+    description: Health and operational endpoints
+  - name: Products
+    description: Product CRUD operations
+  - name: Auth
+    description: Registration and authentication
+  - name: Orders
+    description: Order placement and retrieval
+
+security: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas: {}   # merged by build command
+
+paths: {}       # merged by build command

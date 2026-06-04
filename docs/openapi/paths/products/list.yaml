@@ -1,0 +1,14 @@
+/api/products:
+  get:
+    tags: [Products]
+    summary: List all products
+    operationId: listProducts
+    responses:
+      '200':
+        description: List of products
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProductView'

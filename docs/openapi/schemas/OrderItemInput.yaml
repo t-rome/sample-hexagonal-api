@@ -1,0 +1,13 @@
+OrderItemInput:
+  type: object
+  required:
+    - productId
+    - quantity
+  properties:
+    productId:
+      type: integer
+      example: 1
+    quantity:
+      type: integer
+      minimum: 1
+      example: 2

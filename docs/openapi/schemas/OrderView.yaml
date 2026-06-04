@@ -1,0 +1,37 @@
+OrderView:
+  type: object
+  properties:
+    id:
+      type: integer
+      example: 1
+    uuid:
+      type: string
+      format: uuid
+      example: '019700ab-1234-7000-8000-000000000001'
+    userId:
+      type: integer
+      example: 1
+    items:
+      type: array
+      items:
+        $ref: '#/components/schemas/OrderItemView'
+      example:
+        - productId: 1
+          quantity: 2
+          unitPrice: 9.99
+          totalPrice: 19.98
+        - productId: 3
+          quantity: 1
+          unitPrice: 9.99
+          totalPrice: 9.99
+    totalPrice:
+      type: number
+      format: float
+      example: 29.97
+    status:
+      type: string
+      example: pending
+    createdAt:
+      type: string
+      format: date-time
+      example: '2026-05-03T10:00:00+00:00'

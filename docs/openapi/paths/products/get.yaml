@@ -1,0 +1,24 @@
+/api/products/{id}:
+  get:
+    tags: [Products]
+    summary: Get a product by ID
+    operationId: getProduct
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Product found
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductView'
+      '404':
+        description: Product not found
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'

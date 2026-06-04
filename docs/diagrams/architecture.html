@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hexagonal Architecture &amp; DDD – sample-hexagonal-api</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 20px; background: #0f172a; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    svg { display: block; width: 100%; max-width: 1400px; margin: 0 auto; height: auto; }
+  </style>
+</head>
+<body>
+<svg viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif">
+  <defs>
+    <marker id="arrGray" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#475569"/>
+    </marker>
+    <marker id="arrYellow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#f59e0b"/>
+    </marker>
+    <marker id="arrBlue" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#3b82f6"/>
+    </marker>
+  </defs>
+
+  <!-- BACKGROUND -->
+  <rect width="1400" height="900" fill="#0f172a"/>
+
+  <!-- TITLE -->
+  <text x="700" y="38" text-anchor="middle" font-size="22" font-weight="700" fill="#f1f5f9">Hexagonal Architecture &amp; Domain-Driven Design</text>
+  <text x="700" y="58" text-anchor="middle" font-size="13" fill="#475569">sample-hexagonal-api · PHP 8.4 · Symfony 8 · Doctrine ORM · JWT Auth</text>
+  <line x1="20" y1="70" x2="1380" y2="70" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- ═══════════════════════════════════════════
+       LEFT PANEL – HEXAGONAL ARCHITECTURE DIAGRAM
+       Center: (440, 475)   flat-top hexagons
+       Domain r=120  →  (320,475)(380,371)(500,371)(560,475)(500,579)(380,579)
+       Application r=215  →  (225,475)(333,289)(547,289)(655,475)(547,661)(333,661)
+       Infrastructure r=315  →  (125,475)(283,202)(597,202)(755,475)(597,748)(283,748)
+  ═══════════════════════════════════════════ -->
+
+  <!-- INFRASTRUCTURE HEX -->
+  <polygon points="755,475 597,202 283,202 125,475 283,748 597,748"
+    fill="#130b28" stroke="#6d28d9" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- APPLICATION HEX -->
+  <polygon points="655,475 547,289 333,289 225,475 333,661 547,661"
+    fill="#081522" stroke="#0369a1" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- DOMAIN HEX -->
+  <polygon points="560,475 500,371 380,371 320,475 380,579 500,579"
+    fill="#06111e" stroke="#0891b2" stroke-width="2.5" stroke-linejoin="round"/>
+
+  <!-- ─────── DOMAIN CONTENT ─────── -->
+  <text x="440" y="392" text-anchor="middle" font-size="12" font-weight="700" fill="#22d3ee">DOMAIN</text>
+  <line x1="368" y1="399" x2="512" y2="399" stroke="#0e4f6a" stroke-width="1"/>
+
+  <!-- Order BC -->
+  <text x="440" y="415" text-anchor="middle" font-size="9" fill="#7dd3fc" font-weight="600">── Order ──</text>
+  <text x="440" y="429" text-anchor="middle" font-size="8.5" fill="#bae6fd">Order  «Aggregate Root»</text>
+  <text x="440" y="441" text-anchor="middle" font-size="8.5" fill="#93c5fd">OrderItem  «Entity»</text>
+  <text x="440" y="453" text-anchor="middle" font-size="8.5" fill="#fde68a">OrderPlaced  «DomainEvent»</text>
+  <text x="440" y="465" text-anchor="middle" font-size="8.5" fill="#86efac">⬡ OrderRepositoryInterface</text>
+
+  <!-- Product BC -->
+  <text x="440" y="480" text-anchor="middle" font-size="9" fill="#4ade80" font-weight="600">── Product ──</text>
+  <text x="440" y="494" text-anchor="middle" font-size="8.5" fill="#bbf7d0">Product  «Entity»</text>
+  <text x="440" y="506" text-anchor="middle" font-size="8.5" fill="#86efac">⬡ ProductRepositoryInterface</text>
+
+  <!-- User BC -->
+  <text x="440" y="521" text-anchor="middle" font-size="9" fill="#fbbf24" font-weight="600">── User ──</text>
+  <text x="440" y="534" text-anchor="middle" font-size="8.5" fill="#fef3c7">User  «Entity»</text>
+  <text x="440" y="546" text-anchor="middle" font-size="8.5" fill="#fde68a">⬡ UserRepositoryInterface</text>
+
+  <!-- Shared -->
+  <line x1="365" y1="553" x2="515" y2="553" stroke="#0e3850" stroke-width="1"/>
+  <text x="440" y="565" text-anchor="middle" font-size="7.5" fill="#475569">~ AggregateRoot  |  DomainEvent  «Shared»</text>
+
+  <!-- ─────── APPLICATION RING CONTENT ─────── -->
+
+  <!-- TOP: Queries -->
+  <rect x="342" y="297" width="196" height="68" rx="5" fill="#0b1e3a" stroke="#0369a1" stroke-width="1.5"/>
+  <text x="440" y="313" text-anchor="middle" font-size="9.5" font-weight="700" fill="#38bdf8">Queries  (CQRS – Read)</text>
+  <text x="440" y="327" text-anchor="middle" font-size="8" fill="#7dd3fc">GetOrderQuery · GetOrderHandler</text>
+  <text x="440" y="339" text-anchor="middle" font-size="8" fill="#7dd3fc">ListOrdersQuery · ListOrdersHandler</text>
+  <text x="440" y="351" text-anchor="middle" font-size="8" fill="#7dd3fc">GetProductQuery · ListProductsQuery</text>
+  <text x="440" y="362" text-anchor="middle" font-size="7.5" fill="#1d4ed8">→ Read-Models: OrderView · ProductView</text>
+
+  <!-- LEFT: Commands -->
+  <rect x="231" y="400" width="86" height="100" rx="5" fill="#0b1e3a" stroke="#0369a1" stroke-width="1.5"/>
+  <text x="274" y="415" text-anchor="middle" font-size="8.5" font-weight="700" fill="#38bdf8">Commands</text>
+  <text x="274" y="427" text-anchor="middle" font-size="7.5" fill="#475569">(CQRS – Write)</text>
+  <text x="274" y="443" text-anchor="middle" font-size="7.5" fill="#7dd3fc">PlaceOrder</text>
+  <text x="274" y="455" text-anchor="middle" font-size="7.5" fill="#7dd3fc">CreateProduct</text>
+  <text x="274" y="467" text-anchor="middle" font-size="7.5" fill="#7dd3fc">UpdateProduct</text>
+  <text x="274" y="479" text-anchor="middle" font-size="7.5" fill="#7dd3fc">DeleteProduct</text>
+  <text x="274" y="491" text-anchor="middle" font-size="7.5" fill="#7dd3fc">RegisterUser</text>
+
+  <!-- RIGHT: CQRS badge -->
+  <rect x="566" y="423" width="83" height="52" rx="5" fill="#0b1e3a" stroke="#0369a1" stroke-width="1.5"/>
+  <text x="607" y="440" text-anchor="middle" font-size="9" font-weight="700" fill="#38bdf8">CQRS</text>
+  <text x="607" y="453" text-anchor="middle" font-size="7.5" fill="#7dd3fc">Handler for</text>
+  <text x="607" y="465" text-anchor="middle" font-size="7.5" fill="#7dd3fc">Read / Write</text>
+
+  <!-- BOTTOM: Event Handler -->
+  <rect x="324" y="587" width="232" height="67" rx="5" fill="#140933" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="440" y="603" text-anchor="middle" font-size="9.5" font-weight="700" fill="#a78bfa">Event Handler  (Application)</text>
+  <text x="440" y="618" text-anchor="middle" font-size="8.5" fill="#c4b5fd">ReserveStockOnOrderPlaced</text>
+  <text x="440" y="631" text-anchor="middle" font-size="8" fill="#7c3aed">listens: OrderPlaced «DomainEvent»</text>
+  <text x="440" y="644" text-anchor="middle" font-size="8" fill="#5b21b6">→ product.reserveStock(qty)</text>
+
+  <!-- ─────── INFRASTRUCTURE RING CONTENT ─────── -->
+
+  <!-- TOP: HTTP Controllers (Primary Adapters) -->
+  <rect x="270" y="211" width="340" height="82" rx="5" fill="#160c35" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="440" y="229" text-anchor="middle" font-size="9.5" font-weight="700" fill="#c4b5fd">Primary Adapters — HTTP Controllers</text>
+  <text x="440" y="244" text-anchor="middle" font-size="8.5" fill="#a78bfa">OrderController  ·  ProductController  ·  AuthController  ·  HealthController</text>
+  <text x="440" y="258" text-anchor="middle" font-size="8" fill="#7c3aed">DTOs: PlaceOrderDto · CreateProductDto · UpdateProductDto · RegisterUserDto</text>
+  <text x="440" y="271" text-anchor="middle" font-size="7.5" fill="#4c1d95">@Route('/api/orders')  ·  @Route('/api/products')  ·  @Route('/api/auth')  ·  @Route('/health')</text>
+  <text x="440" y="283" text-anchor="middle" font-size="7.5" fill="#6d28d9">ApiExceptionSubscriber — maps domain exceptions → JSON · logs via Monolog (JSON)</text>
+
+  <!-- LEFT: Security -->
+  <rect x="130" y="428" width="90" height="84" rx="5" fill="#1a1400" stroke="#ca8a04" stroke-width="1.5"/>
+  <text x="175" y="445" text-anchor="middle" font-size="8.5" font-weight="700" fill="#fbbf24">Security</text>
+  <text x="175" y="459" text-anchor="middle" font-size="7.5" fill="#fde68a">JwtBlocklist</text>
+  <text x="175" y="471" text-anchor="middle" font-size="7.5" fill="#fde68a">JwtCreated</text>
+  <text x="175" y="483" text-anchor="middle" font-size="7.5" fill="#fde68a">Listener</text>
+  <text x="175" y="495" text-anchor="middle" font-size="7.5" fill="#fde68a">Blocklist</text>
+  <text x="175" y="505" text-anchor="middle" font-size="7" fill="#78350f">User / Infra</text>
+
+  <!-- BOTTOM: Persistence (Secondary Adapters) -->
+  <rect x="260" y="662" width="360" height="78" rx="5" fill="#09200f" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="440" y="679" text-anchor="middle" font-size="9.5" font-weight="700" fill="#86efac">Secondary Adapters — Doctrine Persistence</text>
+  <text x="440" y="695" text-anchor="middle" font-size="8.5" fill="#4ade80">DoctrineOrderRepository  ·  DoctrineProductRepository  ·  DoctrineUserRepository</text>
+  <text x="440" y="709" text-anchor="middle" font-size="8" fill="#22c55e">OrderMapper · OrderRecord  ·  ProductMapper · ProductRecord  ·  UserMapper · UserRecord</text>
+  <text x="440" y="722" text-anchor="middle" font-size="7.5" fill="#15803d">implements: OrderRepositoryInterface · ProductRepositoryInterface · UserRepositoryInterface</text>
+
+  <!-- ─────── EXTERNAL SYSTEMS ─────── -->
+
+  <!-- REST Client (top) -->
+  <rect x="348" y="80" width="184" height="45" rx="7" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+  <text x="440" y="99" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">HTTP Client</text>
+  <text x="440" y="115" text-anchor="middle" font-size="9" fill="#64748b">REST Requests + JWT Bearer Token</text>
+
+  <!-- Arrow: HTTP Client → HTTP Controllers -->
+  <line x1="440" y1="125" x2="440" y2="205" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrGray)"/>
+  <text x="454" y="170" font-size="8" fill="#475569">HTTP/HTTPS</text>
+
+  <!-- Database (bottom) -->
+  <rect x="335" y="758" width="210" height="44" rx="7" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+  <text x="440" y="776" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">Database</text>
+  <text x="440" y="792" text-anchor="middle" font-size="9" fill="#64748b">PostgreSQL · Doctrine ORM</text>
+
+  <!-- Arrow: Persistence → Database -->
+  <line x1="440" y1="748" x2="440" y2="756" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrGray)"/>
+
+  <!-- ─────── DOMAIN EVENT FLOW (cross-context) ─────── -->
+  <!-- OrderPlaced originates in domain hex, flows to Event Handler in application ring -->
+  <path d="M 498,453 C 620,450 625,600 558,622"
+    stroke="#f59e0b" stroke-width="2" stroke-dasharray="6,3" fill="none" marker-end="url(#arrYellow)"/>
+
+  <!-- Event label -->
+  <rect x="596" y="512" width="86" height="30" rx="4" fill="#1c1003" stroke="#b45309" stroke-width="1"/>
+  <text x="639" y="524" text-anchor="middle" font-size="8" fill="#fbbf24" font-weight="600">OrderPlaced</text>
+  <text x="639" y="535" text-anchor="middle" font-size="7" fill="#92400e">dispatched →</text>
+
+  <!-- ─────── LAYER LABELS (left margin) ─────── -->
+  <text x="87" y="255" text-anchor="middle" font-size="9" fill="#6d28d9" font-weight="700" transform="rotate(-90,87,255)">INFRASTRUCTURE</text>
+  <text x="87" y="475" text-anchor="middle" font-size="9" fill="#0369a1" font-weight="700" transform="rotate(-90,87,475)">APPLICATION</text>
+  <text x="87" y="690" text-anchor="middle" font-size="9" fill="#16a34a" font-weight="700" transform="rotate(-90,87,690)">INFRASTRUCTURE</text>
+
+  <!-- Dependency rule mini-indicator -->
+  <text x="46" y="390" text-anchor="middle" font-size="7.5" fill="#334155" transform="rotate(-90,46,390)">← Dependency Rule: inward →</text>
+
+  <!-- Vertical separator -->
+  <line x1="868" y1="75" x2="868" y2="875" stroke="#1e293b" stroke-width="1.5"/>
+
+  <!-- ══════════════════════════════════════
+       RIGHT PANEL – DDD PATTERNS & CONCEPTS
+  ══════════════════════════════════════ -->
+
+  <!-- Panel background -->
+  <rect x="876" y="78" width="512" height="798" rx="8" fill="#0c1222" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- Panel title -->
+  <text x="1132" y="105" text-anchor="middle" font-size="15" font-weight="700" fill="#f1f5f9">DDD Concepts &amp; Patterns</text>
+  <line x1="892" y1="115" x2="1372" y2="115" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- ── ① BOUNDED CONTEXTS ── -->
+  <text x="893" y="134" font-size="11" font-weight="700" fill="#e2e8f0">① Bounded Contexts</text>
+
+  <!-- Order card -->
+  <rect x="892" y="141" width="116" height="130" rx="6" fill="#0b1e3a" stroke="#0369a1" stroke-width="1.5"/>
+  <text x="950" y="158" text-anchor="middle" font-size="10" font-weight="700" fill="#38bdf8">Order</text>
+  <text x="900" y="173" font-size="7.5" fill="#7dd3fc">Models:</text>
+  <text x="903" y="185" font-size="7" fill="#bae6fd">Order (AR)</text>
+  <text x="903" y="196" font-size="7" fill="#bae6fd">OrderItem (Entity)</text>
+  <text x="900" y="209" font-size="7.5" fill="#7dd3fc">Events:</text>
+  <text x="903" y="221" font-size="7" fill="#fde68a">OrderPlaced</text>
+  <text x="900" y="234" font-size="7.5" fill="#7dd3fc">Exceptions:</text>
+  <text x="903" y="246" font-size="7" fill="#64748b">OrderNotFoundException</text>
+  <text x="900" y="261" font-size="7.5" fill="#7dd3fc">CQRS + Repo Port</text>
+
+  <!-- Product card -->
+  <rect x="1015" y="141" width="116" height="130" rx="6" fill="#09200f" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="1073" y="158" text-anchor="middle" font-size="10" font-weight="700" fill="#4ade80">Product</text>
+  <text x="1023" y="173" font-size="7.5" fill="#86efac">Model:</text>
+  <text x="1026" y="185" font-size="7" fill="#bbf7d0">Product (Entity)</text>
+  <text x="1023" y="198" font-size="7.5" fill="#86efac">Business Logic:</text>
+  <text x="1026" y="210" font-size="7" fill="#bbf7d0">reserveStock(qty)</text>
+  <text x="1023" y="223" font-size="7.5" fill="#86efac">Exceptions:</text>
+  <text x="1026" y="235" font-size="7" fill="#64748b">InsufficientStock</text>
+  <text x="1026" y="246" font-size="7" fill="#64748b">ProductNotFound</text>
+  <text x="1023" y="261" font-size="7.5" fill="#86efac">CQRS + Repo Port</text>
+
+  <!-- User card -->
+  <rect x="1138" y="141" width="110" height="130" rx="6" fill="#1a1200" stroke="#ca8a04" stroke-width="1.5"/>
+  <text x="1193" y="158" text-anchor="middle" font-size="10" font-weight="700" fill="#fbbf24">User</text>
+  <text x="1146" y="173" font-size="7.5" fill="#fde68a">Model:</text>
+  <text x="1149" y="185" font-size="7" fill="#fef3c7">User (Entity)</text>
+  <text x="1146" y="198" font-size="7.5" fill="#fde68a">Security:</text>
+  <text x="1149" y="210" font-size="7" fill="#fef3c7">JwtBlocklist</text>
+  <text x="1149" y="221" font-size="7" fill="#fef3c7">JwtCreatedListener</text>
+  <text x="1149" y="232" font-size="7" fill="#fef3c7">JwtBlocklistListener</text>
+  <text x="1146" y="245" font-size="7.5" fill="#fde68a">Exceptions:</text>
+  <text x="1149" y="257" font-size="7" fill="#64748b">UserAlreadyExists</text>
+  <text x="1146" y="270" font-size="7.5" fill="#fde68a">Command + Repo Port</text>
+
+  <!-- Shared card -->
+  <rect x="1255" y="141" width="112" height="130" rx="6" fill="#181818" stroke="#475569" stroke-width="1.5"/>
+  <text x="1311" y="158" text-anchor="middle" font-size="10" font-weight="700" fill="#94a3b8">Shared</text>
+  <text x="1263" y="173" font-size="7.5" fill="#94a3b8">Domain:</text>
+  <text x="1266" y="185" font-size="7" fill="#cbd5e1">AggregateRoot</text>
+  <text x="1266" y="196" font-size="7" fill="#64748b">  (trait)</text>
+  <text x="1266" y="209" font-size="7" fill="#cbd5e1">DomainEvent</text>
+  <text x="1266" y="220" font-size="7" fill="#64748b">  (interface)</text>
+  <text x="1263" y="233" font-size="7.5" fill="#475569">Infrastructure:</text>
+  <text x="1266" y="245" font-size="7" fill="#64748b">Console Commands</text>
+  <text x="1266" y="256" font-size="7" fill="#64748b">DataFixtures</text>
+  <text x="1266" y="267" font-size="7" fill="#64748b">HealthController</text>
+
+  <!-- ── ② AGGREGATE ROOT & DOMAIN EVENTS ── -->
+  <line x1="892" y1="283" x2="1372" y2="283" stroke="#1e293b" stroke-width="1"/>
+  <text x="893" y="301" font-size="11" font-weight="700" fill="#e2e8f0">② Aggregate Root &amp; Domain Events (cross-context)</text>
+
+  <rect x="892" y="308" width="468" height="105" rx="6" fill="#090f1e" stroke="#1e40af" stroke-width="1"/>
+
+  <!-- Order::place() -->
+  <rect x="902" y="318" width="124" height="36" rx="4" fill="#1e3a5f" stroke="#0369a1" stroke-width="1"/>
+  <text x="964" y="332" text-anchor="middle" font-size="8.5" fill="#7dd3fc" font-weight="600">Order::place()</text>
+  <text x="964" y="345" text-anchor="middle" font-size="7.5" fill="#475569">recordEvent(OrderPlaced)</text>
+
+  <line x1="1026" y1="336" x2="1048" y2="336" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrYellow)"/>
+
+  <!-- OrderPlaced -->
+  <rect x="1049" y="318" width="104" height="36" rx="4" fill="#2d1900" stroke="#b45309" stroke-width="1"/>
+  <text x="1101" y="332" text-anchor="middle" font-size="8.5" fill="#fbbf24" font-weight="600">OrderPlaced</text>
+  <text x="1101" y="345" text-anchor="middle" font-size="7.5" fill="#92400e">«DomainEvent»</text>
+
+  <line x1="1153" y1="336" x2="1174" y2="336" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#arrYellow)"/>
+
+  <!-- ReserveStockOnOrderPlaced -->
+  <rect x="1175" y="318" width="176" height="36" rx="4" fill="#140933" stroke="#7c3aed" stroke-width="1"/>
+  <text x="1263" y="332" text-anchor="middle" font-size="7.5" fill="#a78bfa" font-weight="600">ReserveStockOnOrderPlaced</text>
+  <text x="1263" y="345" text-anchor="middle" font-size="7.5" fill="#6d28d9">Product BC · EventSubscriber</text>
+
+  <text x="902" y="375" font-size="8" fill="#64748b">PlaceOrderHandler → order.releaseEvents() → EventDispatcher → ReserveStockOnOrderPlaced</text>
+  <text x="902" y="388" font-size="8" fill="#64748b">Cross-BC communication via events — no direct coupling between Order and Product</text>
+  <text x="902" y="401" font-size="8" fill="#475569">AggregateRoot trait: recordEvent() / releaseEvents() — Order implements this mechanism</text>
+
+  <!-- ── ③ REPOSITORY PATTERN ── -->
+  <line x1="892" y1="422" x2="1372" y2="422" stroke="#1e293b" stroke-width="1"/>
+  <text x="893" y="440" font-size="11" font-weight="700" fill="#e2e8f0">③ Repository Pattern — Port &amp; Adapter</text>
+
+  <rect x="892" y="447" width="468" height="88" rx="6" fill="#090f1e" stroke="#1e40af" stroke-width="1"/>
+
+  <!-- Domain Port -->
+  <rect x="902" y="457" width="168" height="68" rx="4" fill="#072033" stroke="#0891b2" stroke-width="1.5"/>
+  <text x="986" y="473" text-anchor="middle" font-size="8.5" fill="#22d3ee" font-weight="700">DOMAIN — Port</text>
+  <text x="986" y="487" text-anchor="middle" font-size="8" fill="#86efac">OrderRepositoryInterface</text>
+  <text x="986" y="499" text-anchor="middle" font-size="8" fill="#86efac">ProductRepositoryInterface</text>
+  <text x="986" y="511" text-anchor="middle" font-size="8" fill="#86efac">UserRepositoryInterface</text>
+
+  <!-- implements arrow -->
+  <text x="1083" y="492" text-anchor="middle" font-size="18" fill="#3b82f6">←</text>
+  <text x="1083" y="504" text-anchor="middle" font-size="7" fill="#334155">implements</text>
+
+  <!-- Infra Adapter -->
+  <rect x="1105" y="457" width="244" height="68" rx="4" fill="#09200f" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="1227" y="473" text-anchor="middle" font-size="8.5" fill="#4ade80" font-weight="700">INFRASTRUCTURE — Adapter</text>
+  <text x="1227" y="487" text-anchor="middle" font-size="8" fill="#86efac">DoctrineOrderRepository</text>
+  <text x="1227" y="499" text-anchor="middle" font-size="8" fill="#86efac">DoctrineProductRepository</text>
+  <text x="1227" y="511" text-anchor="middle" font-size="8" fill="#86efac">DoctrineUserRepository + Mapper + Record</text>
+
+  <!-- ── ④ CQRS ── -->
+  <line x1="892" y1="545" x2="1372" y2="545" stroke="#1e293b" stroke-width="1"/>
+  <text x="893" y="563" font-size="11" font-weight="700" fill="#e2e8f0">④ CQRS — Command Query Responsibility Segregation</text>
+
+  <!-- Commands -->
+  <rect x="892" y="571" width="228" height="118" rx="6" fill="#090f1e" stroke="#0369a1" stroke-width="1"/>
+  <text x="1006" y="587" text-anchor="middle" font-size="9" fill="#38bdf8" font-weight="700">Commands  (Write Side)</text>
+  <text x="900" y="602" font-size="7.5" fill="#7dd3fc">PlaceOrderCommand → PlaceOrderHandler</text>
+  <text x="900" y="615" font-size="7.5" fill="#7dd3fc">CreateProductCommand → CreateProductHandler</text>
+  <text x="900" y="628" font-size="7.5" fill="#7dd3fc">UpdateProductCommand → UpdateProductHandler</text>
+  <text x="900" y="641" font-size="7.5" fill="#7dd3fc">DeleteProductCommand → DeleteProductHandler</text>
+  <text x="900" y="654" font-size="7.5" fill="#7dd3fc">RegisterUserCommand → RegisterUserHandler</text>
+  <text x="900" y="668" font-size="7.5" fill="#64748b">Handler calls Aggregate methods</text>
+  <text x="900" y="680" font-size="7.5" fill="#1d4ed8">→ mutate Domain state</text>
+
+  <!-- Queries -->
+  <rect x="1132" y="571" width="228" height="118" rx="6" fill="#090f1e" stroke="#0369a1" stroke-width="1"/>
+  <text x="1246" y="587" text-anchor="middle" font-size="9" fill="#38bdf8" font-weight="700">Queries  (Read Side)</text>
+  <text x="1140" y="602" font-size="7.5" fill="#7dd3fc">GetOrderQuery → GetOrderHandler</text>
+  <text x="1140" y="615" font-size="7.5" fill="#7dd3fc">ListOrdersQuery → ListOrdersHandler</text>
+  <text x="1140" y="628" font-size="7.5" fill="#7dd3fc">GetProductQuery → GetProductHandler</text>
+  <text x="1140" y="641" font-size="7.5" fill="#7dd3fc">ListProductsQuery → ListProductsHandler</text>
+  <text x="1140" y="654" font-size="7.5" fill="#64748b">Read-Models: OrderView, OrderItemView</text>
+  <text x="1140" y="667" font-size="7.5" fill="#64748b">               ProductView</text>
+  <text x="1140" y="680" font-size="7.5" fill="#1d4ed8">→ read without mutating Domain</text>
+
+  <!-- ── ⑤ DEPENDENCY RULE ── -->
+  <line x1="892" y1="700" x2="1372" y2="700" stroke="#1e293b" stroke-width="1"/>
+  <text x="893" y="718" font-size="11" font-weight="700" fill="#e2e8f0">⑤ Dependency Rule — Dependencies point inward</text>
+
+  <rect x="892" y="725" width="468" height="95" rx="6" fill="#090f1e" stroke="#1e40af" stroke-width="1"/>
+  <text x="900" y="742" font-size="8.5" fill="#94a3b8">Infrastructure knows Application. Application knows Domain. Domain knows no one.</text>
+
+  <!-- Infra box -->
+  <rect x="902" y="751" width="100" height="28" rx="4" fill="#130b28" stroke="#6d28d9" stroke-width="1.5"/>
+  <text x="952" y="769" text-anchor="middle" font-size="8.5" fill="#c4b5fd" font-weight="700">Infrastructure</text>
+
+  <line x1="1002" y1="765" x2="1024" y2="765" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arrBlue)"/>
+  <text x="1013" y="759" text-anchor="middle" font-size="6.5" fill="#334155">knows</text>
+
+  <!-- Application box -->
+  <rect x="1025" y="751" width="98" height="28" rx="4" fill="#081522" stroke="#0369a1" stroke-width="1.5"/>
+  <text x="1074" y="769" text-anchor="middle" font-size="8.5" fill="#38bdf8" font-weight="700">Application</text>
+
+  <line x1="1123" y1="765" x2="1145" y2="765" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arrBlue)"/>
+  <text x="1134" y="759" text-anchor="middle" font-size="6.5" fill="#334155">knows</text>
+
+  <!-- Domain box -->
+  <rect x="1146" y="751" width="80" height="28" rx="4" fill="#06111e" stroke="#0891b2" stroke-width="1.5"/>
+  <text x="1186" y="769" text-anchor="middle" font-size="8.5" fill="#22d3ee" font-weight="700">Domain</text>
+
+  <text x="1250" y="769" font-size="12" fill="#16a34a">✓</text>
+  <text x="1268" y="769" font-size="7.5" fill="#4ade80">knows no one</text>
+
+  <text x="900" y="807" font-size="8" fill="#475569">Infra implements Domain Interfaces → Dependency Inversion (SOLID – D)</text>
+  <text x="900" y="819" font-size="8" fill="#475569">Doctrine Repositories never point toward Controller — only inward</text>
+
+  <!-- ═════════════════════════
+       BOTTOM LEGEND (left panel)
+  ═════════════════════════ -->
+  <rect x="96" y="843" width="758" height="46" rx="5" fill="#0c1222" stroke="#1e293b" stroke-width="1"/>
+
+  <rect x="112" y="851" width="11" height="11" rx="2" fill="#130b28" stroke="#6d28d9" stroke-width="1.5"/>
+  <text x="127" y="861" font-size="8.5" fill="#8b5cf6">Infrastructure</text>
+
+  <rect x="210" y="851" width="11" height="11" rx="2" fill="#081522" stroke="#0369a1" stroke-width="1.5"/>
+  <text x="225" y="861" font-size="8.5" fill="#38bdf8">Application</text>
+
+  <rect x="298" y="851" width="11" height="11" rx="2" fill="#06111e" stroke="#0891b2" stroke-width="1.5"/>
+  <text x="313" y="861" font-size="8.5" fill="#22d3ee">Domain</text>
+
+  <rect x="362" y="851" width="11" height="11" rx="2" fill="#1c1003" stroke="#b45309" stroke-width="1.5"/>
+  <text x="377" y="861" font-size="8.5" fill="#fbbf24">Domain Event</text>
+
+  <rect x="464" y="851" width="11" height="11" rx="2" fill="#09200f" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="479" y="861" font-size="8.5" fill="#4ade80">Persistence</text>
+
+  <rect x="548" y="851" width="11" height="11" rx="2" fill="#160c35" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="563" y="861" font-size="8.5" fill="#a78bfa">HTTP Adapter</text>
+
+  <text x="645" y="861" font-size="8" fill="#334155">«AR»=Aggregate Root  ·  ⬡=Port/Interface</text>
+
+  <!-- 2nd legend row -->
+  <line x1="112" y1="874" x2="140" y2="874" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="144" y="879" font-size="8" fill="#f59e0b">Event flow (cross-context)</text>
+
+  <line x1="274" y1="874" x2="302" y2="874" stroke="#475569" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="306" y="879" font-size="8" fill="#94a3b8">HTTP / DB (external)</text>
+
+  <line x1="424" y1="874" x2="452" y2="874" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="456" y="879" font-size="8" fill="#818cf8">Dependency direction (inward)</text>
+
+  <text x="628" y="879" font-size="8" fill="#334155">Adapters implement Ports (Interfaces)</text>
+
+</svg>
+</body>
+</html>

@@ -1,0 +1,7 @@
+services:
+    logger:
+        class: Psr\Log\NullLogger
+
+    App\Tests\Shared\Fixture\UserFixture:
+        autowire: true
+        public: true

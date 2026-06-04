@@ -1,0 +1,40 @@
+/api/products/{id}:
+  put:
+    tags: [Products]
+    summary: Update a product
+    operationId: updateProduct
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProductInput'
+    responses:
+      '200':
+        description: Product updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductView'
+      '401':
+        description: Unauthorized
+      '404':
+        description: Product not found
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '422':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidationErrorResponse'

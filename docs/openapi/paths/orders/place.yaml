@@ -1,0 +1,30 @@
+/api/orders:
+  post:
+    tags: [Orders]
+    summary: Place a new order
+    operationId: placeOrder
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OrderInput'
+    responses:
+      '201':
+        description: Order placed
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderView'
+      '404':
+        description: Product not found
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorResponse'
+      '422':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidationErrorResponse'

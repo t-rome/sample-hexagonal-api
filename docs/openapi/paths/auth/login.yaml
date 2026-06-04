@@ -1,0 +1,24 @@
+/api/auth/login:
+  post:
+    tags: [Auth]
+    summary: Login and receive a JWT token
+    operationId: login
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LoginInput'
+    responses:
+      '200':
+        description: JWT token
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...
+      '401':
+        description: Invalid credentials

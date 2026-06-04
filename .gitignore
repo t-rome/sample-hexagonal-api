@@ -1,0 +1,25 @@
+###> symfony ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/var/
+/vendor/
+###< symfony ###
+
+###> phpunit ###
+/phpunit.xml
+.phpunit.cache/
+###< phpunit ###
+
+###> php-cs-fixer ###
+.php-cs-fixer.cache
+###< php-cs-fixer ###
+
+###> ide ###
+/.idea/
+/.vscode/
+###< ide ###
+
+###> os ###
+.DS_Store
+###< os ###
