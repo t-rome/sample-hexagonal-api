@@ -11,7 +11,7 @@ use App\Order\Domain\Exception\PaymentFailedException;
 use App\Order\Domain\Model\Order;
 use App\Order\Domain\Model\OrderItem;
 use App\Order\Domain\Model\OrderStatus;
-use App\Order\Domain\PaymentGatewayInterface;
+use App\Order\Domain\Port\PaymentGatewayInterface;
 use App\Order\Domain\Repository\OrderRepositoryInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;

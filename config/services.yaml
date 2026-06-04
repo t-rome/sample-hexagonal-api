@@ -40,7 +40,7 @@ services:
     App\Order\Domain\Repository\OrderRepositoryInterface:
         class: App\Order\Infrastructure\Persistence\OrderRepository
 
-    App\Order\Domain\PaymentGatewayInterface:
+    App\Order\Domain\Port\PaymentGatewayInterface:
         class: App\Order\Infrastructure\Payment\FakePaymentGateway
 
     App\Shared\Domain\NotificationServiceInterface:

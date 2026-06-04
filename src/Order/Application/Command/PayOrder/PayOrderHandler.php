@@ -6,7 +6,7 @@ namespace App\Order\Application\Command\PayOrder;
 
 use App\Order\Domain\Exception\OrderNotFoundException;
 use App\Order\Domain\Model\Order;
-use App\Order\Domain\PaymentGatewayInterface;
+use App\Order\Domain\Port\PaymentGatewayInterface;
 use App\Order\Domain\Repository\OrderRepositoryInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 

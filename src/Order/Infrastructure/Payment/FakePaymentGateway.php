@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Order\Infrastructure\Payment;
 
 use App\Order\Domain\Exception\PaymentFailedException;
-use App\Order\Domain\PaymentGatewayInterface;
+use App\Order\Domain\Port\PaymentGatewayInterface;
 use Symfony\Component\Uid\Uuid;
 
 /**
