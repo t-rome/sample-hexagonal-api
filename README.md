@@ -28,9 +28,9 @@ This project serves as a concrete, runnable example of how to combine:
 
 ### Visual Diagrams
 
-- [**Hexagonal Architecture Diagram**](https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/architecture.html) — Domain boundaries, application layer (commands/queries), and infrastructure adapters across all three bounded contexts.
-- [**Testing Strategy**](https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/testing.html) — Quality gates, test pyramid, and the QA pipeline from static analysis through BDD acceptance tests.
-- [**Security & Authorization**](https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/security.html) — Role hierarchy, access control matrix, ProductVoter architecture, and JWT authentication flow.
+- <a href="https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/architecture.html" target="_blank" rel="noopener noreferrer">**Hexagonal Architecture Diagram**</a> — Domain boundaries, application layer (commands/queries), and infrastructure adapters across all three bounded contexts.
+- <a href="https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/testing.html" target="_blank" rel="noopener noreferrer">**Testing Strategy**</a> — Quality gates, test pyramid, and the QA pipeline from static analysis through BDD acceptance tests.
+- <a href="https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/security.html" target="_blank" rel="noopener noreferrer">**Security & Authorization**</a> — Role hierarchy, access control matrix, ProductVoter architecture, and JWT authentication flow.
 
 ### Hexagonal Architecture
 
@@ -80,7 +80,7 @@ Access control uses Symfony's role hierarchy and a dedicated voter:
 
 `ROLE_ADMIN` implies `ROLE_USER` via Symfony's role hierarchy — admins can also place and pay orders.
 
-Product write operations are enforced by `ProductVoter` (`src/Product/Infrastructure/Security/`), a Symfony voter that checks `ROLE_ADMIN` on the token and returns `403 Access denied.` for authenticated users with insufficient privileges. See the [Security & Authorization diagram](docs/diagrams/security.html) for a full access matrix and flow.
+Product write operations are enforced by `ProductVoter` (`src/Product/Infrastructure/Security/`), a Symfony voter that checks `ROLE_ADMIN` on the token and returns `403 Access denied.` for authenticated users with insufficient privileges. See the <a href="docs/diagrams/security.html" target="_blank" rel="noopener noreferrer">Security & Authorization diagram</a> for a full access matrix and flow.
 
 ---
 
@@ -248,7 +248,7 @@ The `ApiExceptionSubscriber` maps all domain exceptions to the appropriate HTTP 
 
 ## Testing Strategy
 
-See the [**Testing Strategy diagram**](https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/testing.html) for a visual overview of the quality gates.
+See the <a href="https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/testing.html" target="_blank" rel="noopener noreferrer">**Testing Strategy diagram**</a> for a visual overview of the quality gates.
 
 The project uses three complementary test types to cover different concerns:
 
