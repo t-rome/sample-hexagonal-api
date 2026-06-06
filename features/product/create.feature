@@ -30,6 +30,7 @@ Feature: Create a product
       {"name": "Keyboard", "description": "Mechanical", "price": 89.99}
       """
     Then the response status code should be 201
+    And the request body matches the OpenAPI spec
     And the JSON response field "name" should be "Keyboard"
     And the JSON response should have a field "id"
     And the response matches the OpenAPI spec

@@ -23,6 +23,7 @@ Feature: Update and delete a product
       {"name": "Laptop Updated", "price": 1299.99}
       """
     Then the response status code should be 200
+    And the request body matches the OpenAPI spec
     And the JSON response field "name" should be "Laptop Updated"
     And the response matches the OpenAPI spec
 

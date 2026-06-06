@@ -66,7 +66,11 @@ Domain events decouple bounded contexts. When an order is placed, an `OrderPlace
 
 ### API-First Approach
 
-The OpenAPI specification lives in `docs/openapi.yaml` and is the source of truth for the API contract. It is built from modular files under `api-contract/` (paths and schemas) and validated as part of the QA pipeline before any tests run.
+The OpenAPI specification lives in `docs/openapi.yaml` and is the source of truth for the API contract. It is built from modular files under `api-contract/` (paths and schemas). The contract is enforced at three layers:
+
+1. **Spec validity** — `app:validate:openapi` validates `docs/openapi.yaml` against the OpenAPI standard.
+2. **Sync check** — `app:openapi:check-sync` verifies that the generated `docs/openapi.yaml` is in sync with the `api-contract/` source fragments, catching any drift between the two.
+3. **Runtime conformance** — every Behat scenario that sends or returns a JSON body includes `And the request body matches the OpenAPI spec` and `And the response matches the OpenAPI spec` steps, ensuring the live endpoints both accept and return data that conforms to the contract.
 
 ### Security & Authorization
 

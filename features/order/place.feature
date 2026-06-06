@@ -21,6 +21,7 @@ Feature: Place an order
       | Laptop Pro     | 1        |
       | Wireless Mouse | 2        |
     Then the response status code should be 201
+    And the request body matches the OpenAPI spec
     And the JSON response field "status" should be "pending"
     And the response matches the OpenAPI spec
 

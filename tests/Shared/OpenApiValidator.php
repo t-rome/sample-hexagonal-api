@@ -37,6 +37,27 @@ final class OpenApiValidator
         throw new \InvalidArgumentException("No spec path matches: {$path}");
     }
 
+    public function hasRequestBodySchema(string $specPath, string $method): bool
+    {
+        $operation = $this->spec['paths'][$specPath][strtolower($method)] ?? null;
+
+        return isset($operation['requestBody']['content']['application/json']['schema']);
+    }
+
+    public function assertRequestBody(string $specPath, string $method, mixed $body): void
+    {
+        $schema = $this->resolveRequestBodySchema($specPath, $method);
+
+        $result = $this->validator->validate(
+            Helper::toJSON($body),
+            json_encode($schema, \JSON_THROW_ON_ERROR),
+        );
+
+        if (!$result->isValid()) {
+            throw new \PHPUnit\Framework\AssertionFailedError(\sprintf("Request body for %s %s does not match OpenAPI spec:\n%s", strtoupper($method), $specPath, $this->formatErrors($result->error())));
+        }
+    }
+
     public function hasResponseSchema(string $specPath, string $method, int $statusCode): bool
     {
         $operation = $this->spec['paths'][$specPath][strtolower($method)] ?? null;
@@ -61,6 +82,17 @@ final class OpenApiValidator
         if (!$result->isValid()) {
             throw new \PHPUnit\Framework\AssertionFailedError(\sprintf("Response for %s %s [%d] does not match OpenAPI spec:\n%s", strtoupper($method), $path, $statusCode, $this->formatErrors($result->error())));
         }
+    }
+
+    private function resolveRequestBodySchema(string $specPath, string $method): array
+    {
+        $operation = $this->spec['paths'][$specPath][strtolower($method)]
+            ?? throw new \InvalidArgumentException("No operation defined for {$method} {$specPath}");
+
+        $schema = $operation['requestBody']['content']['application/json']['schema']
+            ?? throw new \InvalidArgumentException("No request body schema for {$method} {$specPath}");
+
+        return $this->resolveRefs($schema);
     }
 
     private function resolveResponseSchema(string $path, string $method, int $statusCode): array

@@ -9,6 +9,7 @@ Feature: Authentication
       {"email": "user@test.com", "password": "password123"}
       """
     Then the response status code should be 200
+    And the request body matches the OpenAPI spec
     And the JSON response should have a field "token"
     And the response matches the OpenAPI spec
 
@@ -25,6 +26,7 @@ Feature: Authentication
       {"email": "new@test.com", "password": "newpassword123"}
       """
     Then the response status code should be 201
+    And the request body matches the OpenAPI spec
     And the JSON response field "email" should be "new@test.com"
     And the JSON response should have a field "id"
     And the response matches the OpenAPI spec

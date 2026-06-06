@@ -160,6 +160,32 @@ class ApiContext implements Context
         }
     }
 
+    #[Then('the request body matches the OpenAPI spec')]
+    public function theRequestBodyMatchesTheOpenApiSpec(): void
+    {
+        $method = $this->client->getRequest()->getMethod();
+        $path = $this->client->getRequest()->getPathInfo();
+        $content = $this->client->getRequest()->getContent();
+
+        if ('' === $content) {
+            return;
+        }
+
+        try {
+            $body = json_decode($content, null, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return;
+        }
+
+        $specPath = $this->openApiValidator->resolveSpecPath($path);
+
+        if (!$this->openApiValidator->hasRequestBodySchema($specPath, $method)) {
+            return;
+        }
+
+        $this->openApiValidator->assertRequestBody($specPath, $method, $body);
+    }
+
     #[Then('the response matches the OpenAPI spec')]
     public function theResponseMatchesTheOpenApiSpec(): void
     {
