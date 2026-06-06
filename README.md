@@ -28,9 +28,9 @@ This project serves as a concrete, runnable example of how to combine:
 
 ### Visual Diagrams
 
-- [**Hexagonal Architecture Diagram**](docs/diagrams/architecture.html) — Domain boundaries, application layer (commands/queries), and infrastructure adapters across all three bounded contexts.
-- [**Testing Strategy**](docs/diagrams/testing.html) — Quality gates, test pyramid, and the QA pipeline from static analysis through BDD acceptance tests.
-- [**Security & Authorization**](docs/diagrams/security.html) — Role hierarchy, access control matrix, ProductVoter architecture, and JWT authentication flow.
+- [**Hexagonal Architecture Diagram**](https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/architecture.html) — Domain boundaries, application layer (commands/queries), and infrastructure adapters across all three bounded contexts.
+- [**Testing Strategy**](https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/testing.html) — Quality gates, test pyramid, and the QA pipeline from static analysis through BDD acceptance tests.
+- [**Security & Authorization**](https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/security.html) — Role hierarchy, access control matrix, ProductVoter architecture, and JWT authentication flow.
 
 ### Hexagonal Architecture
 
@@ -248,7 +248,7 @@ The `ApiExceptionSubscriber` maps all domain exceptions to the appropriate HTTP 
 
 ## Testing Strategy
 
-See the [**Testing Strategy diagram**](docs/diagrams/testing.html) for a visual overview of the quality gates.
+See the [**Testing Strategy diagram**](https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/testing.html) for a visual overview of the quality gates.
 
 The project uses three complementary test types to cover different concerns:
 
