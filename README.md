@@ -7,7 +7,7 @@ This project serves as a concrete, runnable example of how to combine:
 - **API-first development** — the contract is defined before the code
 - **Hexagonal Architecture** (Ports & Adapters) — strict separation between domain logic and infrastructure
 - **Domain-Driven Design** — bounded contexts with rich domain models and domain events
-- **Event-driven development** — decoupled communication via domain events
+- **Event-driven development** — domain events are raised on aggregates, dispatched by the infrastructure layer, and handled by dedicated listeners, keeping side effects decoupled from the domain
 - **Layered testing strategy** — unit, functional, and BDD acceptance tests
 
 ---
