@@ -70,7 +70,7 @@ The OpenAPI specification lives in `docs/openapi.yaml` and is the source of trut
 
 1. **Spec validity** — `app:validate:openapi` validates `docs/openapi.yaml` against the OpenAPI standard.
 2. **Sync check** — `app:openapi:check-sync` verifies that the generated `docs/openapi.yaml` is in sync with the `api-contract/` source fragments, catching any drift between the two.
-3. **Runtime conformance** — every Behat scenario that sends or returns a JSON body includes `And the request body matches the OpenAPI spec` and `And the response matches the OpenAPI spec` steps, ensuring the live endpoints both accept and return data that conforms to the contract.
+3. **Contract enforcement** — every Behat scenario that sends or returns a JSON body includes `And the request body matches the OpenAPI spec` and `And the response matches the OpenAPI spec` steps, ensuring the endpoints both accept and return data that conforms to the contract.
 
 ### Security & Authorization
 
