@@ -10,6 +10,16 @@ use App\Shared\Infrastructure\Http\ExceptionMapperInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Maps Product domain exceptions to JSON HTTP responses.
+ *
+ * Each bounded context owns its exception mapping — this class handles only the
+ * exceptions thrown by the Product domain, keeping error handling modular and
+ * preventing any cross-context coupling.
+ *
+ *   ProductNotFoundException   → 404 Not Found
+ *   InsufficientStockException → 422 Unprocessable Entity
+ */
 final class ProductExceptionMapper implements ExceptionMapperInterface
 {
     public function supports(\Throwable $exception): bool

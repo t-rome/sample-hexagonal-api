@@ -9,6 +9,15 @@ use App\User\Domain\Exception\UserAlreadyExistsException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Maps User domain exceptions to JSON HTTP responses.
+ *
+ * Each bounded context owns its exception mapping — this class handles only the
+ * exceptions thrown by the User domain, keeping error handling modular and
+ * preventing any cross-context coupling.
+ *
+ *   UserAlreadyExistsException → 409 Conflict   (duplicate email on registration)
+ */
 final class UserExceptionMapper implements ExceptionMapperInterface
 {
     public function supports(\Throwable $exception): bool

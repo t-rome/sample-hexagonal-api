@@ -11,6 +11,17 @@ use App\Shared\Infrastructure\Http\ExceptionMapperInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Maps Order domain exceptions to JSON HTTP responses.
+ *
+ * Each bounded context owns its exception mapping — this class handles only the
+ * exceptions thrown by the Order domain, keeping error handling modular and
+ * preventing any cross-context coupling.
+ *
+ *   OrderNotFoundException    → 404 Not Found
+ *   OrderNotPayableException  → 409 Conflict   (order already paid or cancelled)
+ *   PaymentFailedException    → 402 Payment Required
+ */
 final class OrderExceptionMapper implements ExceptionMapperInterface
 {
     public function supports(\Throwable $exception): bool
