@@ -6,6 +6,18 @@ namespace App\Product\Application\Query\ReadModel;
 
 use App\Product\Domain\Model\Product;
 
+/**
+ * Read model (DTO) returned by product query handlers.
+ *
+ * Query handlers return a view object instead of the domain model for two reasons:
+ * 1. Decoupling: the API response shape is independent of domain internals — the
+ *    domain can evolve without breaking the read API, and vice versa.
+ * 2. Encapsulation: domain logic and invariants are not exposed to the presentation
+ *    layer; consumers get a flat, serialization-friendly structure.
+ *
+ * fromDomain() is the only place that knows how to map from a domain Product to this
+ * flat structure. All fields are strings or scalar types — no domain objects leak out.
+ */
 final readonly class ProductView
 {
     public function __construct(

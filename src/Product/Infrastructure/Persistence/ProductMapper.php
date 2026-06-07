@@ -6,6 +6,20 @@ namespace App\Product\Infrastructure\Persistence;
 
 use App\Product\Domain\Model\Product;
 
+/**
+ * Translates between the Product domain model and the Doctrine ORM record.
+ *
+ * The domain model (Product) is kept free of ORM annotations and persistence
+ * concerns. This mapper acts as an anti-corruption layer between the two worlds:
+ *
+ * toDomain() — called when loading from the database; reconstructs a pure domain
+ *              object via Product::reconstitute(), bypassing normal business rules
+ *              since the data was already validated when it was first saved.
+ *
+ * toRecord() — called before persisting; maps domain state onto the ORM entity.
+ *              Accepts an existing record to allow Doctrine's change-tracking to
+ *              detect which columns actually changed (UPDATE instead of INSERT).
+ */
 final class ProductMapper
 {
     public function toDomain(ProductRecord $record): Product

@@ -6,6 +6,12 @@ namespace App\Order\Infrastructure\Persistence;
 
 use App\Order\Domain\Model\OrderItem;
 
+/**
+ * Translates between the OrderItem domain object and its Doctrine ORM record.
+ *
+ * Used internally by OrderMapper — never called directly from outside the
+ * persistence layer. See OrderMapper for the full mapping rationale.
+ */
 final class OrderItemMapper
 {
     public function toDomain(OrderItemRecord $record): OrderItem

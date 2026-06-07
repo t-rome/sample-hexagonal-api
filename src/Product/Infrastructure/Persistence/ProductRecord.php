@@ -6,6 +6,14 @@ namespace App\Product\Infrastructure\Persistence;
 
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Doctrine ORM entity for persisting products to the database.
+ *
+ * This class exists only in Infrastructure and carries all ORM annotations.
+ * It is intentionally separate from the Product domain model, which must stay
+ * free of persistence concerns. The ProductMapper translates between the two.
+ * Never use this class outside of the persistence layer.
+ */
 #[ORM\Entity]
 #[ORM\Table(name: 'product')]
 class ProductRecord

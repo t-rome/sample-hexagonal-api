@@ -11,6 +11,18 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 
+/**
+ * Doctrine ORM entity for persisting orders to the database.
+ *
+ * This class exists only in Infrastructure and carries all ORM annotations.
+ * It is intentionally separate from the Order domain model, which must stay
+ * free of persistence concerns (no Doctrine imports, no nullable id, no
+ * ArrayCollection). This separation is sometimes called the "Persistence Model"
+ * or "ORM Record" pattern.
+ *
+ * The OrderMapper translates between this record and the Order domain model
+ * in both directions. Never use this class outside of the persistence layer.
+ */
 #[ORM\Entity]
 #[ORM\Table(name: 'orders')]
 class OrderRecord

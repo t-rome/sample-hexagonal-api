@@ -6,6 +6,13 @@ namespace App\Order\Infrastructure\Persistence;
 
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Doctrine ORM entity for persisting order line items.
+ *
+ * Mirrors the OrderItem domain object but with ORM annotations and a surrogate
+ * database id. The OrderItemMapper translates between the two representations.
+ * Never use this class outside of the persistence layer.
+ */
 #[ORM\Entity]
 #[ORM\Table(name: 'order_items')]
 class OrderItemRecord
