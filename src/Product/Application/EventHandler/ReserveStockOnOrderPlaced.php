@@ -6,21 +6,15 @@ namespace App\Product\Application\EventHandler;
 
 use App\Order\Domain\Event\OrderPlaced;
 use App\Product\Domain\Repository\ProductRepositoryInterface;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-final readonly class ReserveStockOnOrderPlaced implements EventSubscriberInterface
+final readonly class ReserveStockOnOrderPlaced
 {
     public function __construct(
         private ProductRepositoryInterface $productRepository,
     ) {
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [OrderPlaced::class => 'onOrderPlaced'];
-    }
-
-    public function onOrderPlaced(OrderPlaced $event): void
+    public function handle(OrderPlaced $event): void
     {
         foreach ($event->items as $item) {
             $product = $this->productRepository->findById($item->getProductId())

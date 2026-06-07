@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\Http;
 
+use App\Shared\Application\Bus\CommandBusInterface;
 use App\User\Application\Command\RegisterUser\RegisterUserCommand;
-use App\User\Application\Command\RegisterUser\RegisterUserHandler;
+use App\User\Domain\Model\User;
+use App\User\Domain\Port\TokenRevocationInterface;
 use App\User\Infrastructure\Http\Dto\RegisterUserDto;
-use App\User\Infrastructure\Security\JwtBlocklist;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,18 +22,17 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class AuthController extends AbstractController
 {
     public function __construct(
-        private readonly RegisterUserHandler $registerHandler,
+        private readonly CommandBusInterface $commandBus,
         private readonly JWTTokenManagerInterface $jwtManager,
-        private readonly JwtBlocklist $blocklist,
+        private readonly TokenRevocationInterface $revocation,
     ) {
     }
 
     #[Route('/register', methods: ['POST'])]
     public function register(#[MapRequestPayload] RegisterUserDto $dto): JsonResponse
     {
-        $user = $this->registerHandler->handle(
-            new RegisterUserCommand($dto->email, $dto->password),
-        );
+        $user = $this->commandBus->dispatch(new RegisterUserCommand($dto->email, $dto->password));
+        \assert($user instanceof User);
 
         return $this->json(['id' => $user->getId(), 'email' => $user->getEmail()], Response::HTTP_CREATED);
     }
@@ -53,7 +53,7 @@ class AuthController extends AbstractController
         $payload = $this->jwtManager->parse($token);
 
         if (isset($payload['jti'], $payload['exp'])) {
-            $this->blocklist->add(
+            $this->revocation->revoke(
                 $payload['jti'],
                 new \DateTimeImmutable()->setTimestamp($payload['exp']),
             );

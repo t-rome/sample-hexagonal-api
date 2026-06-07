@@ -6,21 +6,15 @@ namespace App\Order\Application\EventHandler;
 
 use App\Order\Domain\Event\OrderPaid;
 use App\Shared\Domain\NotificationServiceInterface;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-final readonly class NotifyUserOnOrderPaid implements EventSubscriberInterface
+final readonly class NotifyUserOnOrderPaid
 {
     public function __construct(
         private NotificationServiceInterface $notificationService,
     ) {
     }
 
-    public static function getSubscribedEvents(): array
-    {
-        return [OrderPaid::class => 'onOrderPaid'];
-    }
-
-    public function onOrderPaid(OrderPaid $event): void
+    public function handle(OrderPaid $event): void
     {
         $this->notificationService->notify(
             $event->userId,

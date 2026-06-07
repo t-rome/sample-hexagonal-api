@@ -7,7 +7,7 @@ This project serves as a concrete, runnable example of how to combine:
 - **API-first development** — the contract is defined before the code
 - **Hexagonal Architecture** (Ports & Adapters) — strict separation between domain logic and infrastructure
 - **Domain-Driven Design** — bounded contexts with rich domain models and domain events
-- **Event-driven development** — domain events are raised on aggregates, dispatched by the infrastructure layer, and handled by dedicated listeners, keeping side effects decoupled from the domain
+- **Event-driven development** — domain events are raised on aggregates and published via a `DomainEventPublisherInterface` port. Application event handlers are pure PHP classes; thin Infrastructure subscribers handle the Symfony wiring, keeping framework concerns out of the Application layer
 - **Layered testing strategy** — unit, functional, and BDD acceptance tests
 
 ---
@@ -39,30 +39,31 @@ The application is divided into three **bounded contexts**, each following the s
 ```
 src/
 ├── Order/
-│   ├── Application/     # Use cases: commands (PlaceOrder) and query handlers (ListOrders, GetOrder)
+│   ├── Application/     # Use cases: commands (PlaceOrder), query handlers (ListOrders, GetOrder), event handlers
 │   ├── Domain/          # Aggregates, repository interfaces, domain events, exceptions
-│   └── Infrastructure/  # HTTP controllers, Doctrine repositories, DTOs, persistence mappers
+│   └── Infrastructure/  # HTTP controllers, Doctrine repositories, DTOs, persistence mappers, event subscribers
 ├── Product/
-│   ├── Application/     # CRUD commands and query handlers
+│   ├── Application/     # CRUD commands, query handlers, event handlers
 │   ├── Domain/
-│   └── Infrastructure/
+│   └── Infrastructure/  # HTTP controllers, persistence, security voter, event subscribers
 ├── User/
 │   ├── Application/     # RegisterUser command
-│   ├── Domain/
-│   └── Infrastructure/  # JWT auth listeners, blocklist, Doctrine repository
+│   ├── Domain/          # Aggregates, repository interface, ports (PasswordHasher, TokenRevocation)
+│   └── Infrastructure/  # JWT auth listeners, blocklist, Doctrine repository, security adapters
 └── Shared/
-    ├── Domain/          # Base classes: AggregateRoot, DomainEvent
-    └── Infrastructure/  # OpenAPI builder, data fixtures, health endpoint, error handling
+    ├── Application/     # Cross-cutting ports: CommandBusInterface, QueryBusInterface
+    ├── Domain/          # Base classes: AggregateRoot, DomainEvent, DomainEventPublisherInterface
+    └── Infrastructure/  # Bus impl, event publisher, OpenAPI builder, data fixtures, error handling
 ```
 
 **Key rules enforced:**
 - The **Domain layer** has zero framework or infrastructure dependencies.
-- The **Application layer** depends only on domain interfaces (ports), never on concrete infrastructure.
-- **Infrastructure** implements those interfaces (adapters) and is the only layer allowed to import Symfony, Doctrine, or third-party libraries.
+- The **Application layer** depends only on domain interfaces (ports), never on concrete infrastructure. Cross-cutting concerns such as event publishing (`DomainEventPublisherInterface`) and message dispatching (`CommandBusInterface`, `QueryBusInterface`) are expressed as ports defined in the Application or Domain layer.
+- **Infrastructure** implements those interfaces (adapters) and is the only layer allowed to import Symfony, Doctrine, or third-party libraries. Symfony's `EventSubscriberInterface` lives in Infrastructure event subscribers, not in Application event handlers.
 
 ### Domain Events
 
-Domain events decouple bounded contexts. When an order is placed, an `OrderPlaced` event is raised on the aggregate root and dispatched by the infrastructure layer — other contexts react without being directly coupled to the Order module.
+Domain events decouple bounded contexts. When an order is placed, an `OrderPlaced` event is raised on the aggregate root. The command handler releases accumulated events and publishes them through `DomainEventPublisherInterface` — a port whose Symfony adapter forwards events to the dispatcher. Application event handlers (`NotifyUserOnOrderPaid`, `ReserveStockOnOrderPlaced`) are plain PHP classes with no framework imports; thin Infrastructure subscribers (`NotifyUserOnOrderPaidSubscriber`, `ReserveStockOnOrderPlacedSubscriber`) implement Symfony's `EventSubscriberInterface` and delegate to them. Other contexts react without being directly coupled to Order internals.
 
 ### API-First Approach
 
@@ -216,8 +217,9 @@ The full API is described in [`docs/openapi.yaml`](docs/openapi.yaml).
 - `POST /api/orders` — Place an order `[ROLE_USER]`
 - `PATCH /api/orders/{id}/pay` — Pay an order (transitions `pending → confirmed`) `[ROLE_USER]`
 
-> **Pluggable ports on `/pay`** — The handler depends on two interfaces, not concrete implementations:
+> **Pluggable ports on `/pay`** — The handler depends on interfaces, not concrete implementations:
 > - `PaymentGatewayInterface` — currently wired to `FakePaymentGateway` (always succeeds). Swap for a real adapter (`StripePaymentGateway`, `AdyenPaymentGateway`, …) in `config/services.yaml`.
+> - `DomainEventPublisherInterface` — currently wired to `SymfonyDomainEventPublisher`. Swap for an async adapter (Symfony Messenger, RabbitMQ) without touching any handler.
 > - `NotificationServiceInterface` — on success, `NotifyUserOnOrderPaid` fires and calls this port. Currently wired to `FakeNotificationService` (logs via Monolog). Swap for email, SMS, or push adapters the same way.
 >
 > **Design note:** Payment is modelled here as a port inside the Order bounded context, which is appropriate for a simple flow. In a system with richer payment concerns — refunds, partial payments, retries, reconciliation, or PCI scope isolation — Payment would deserve its own bounded context with a `PaymentIntent` aggregate, its own status lifecycle, and its own repository.
@@ -246,7 +248,7 @@ Validation failures include a `violations` array:
 }
 ```
 
-The `ApiExceptionSubscriber` maps all domain exceptions to the appropriate HTTP status codes centrally — controllers contain no try/catch blocks.
+The `ApiExceptionSubscriber` maps domain exceptions to HTTP status codes centrally — controllers contain no try/catch blocks. It delegates to a collection of `ExceptionMapperInterface` implementations, one per bounded context, so adding a new context requires no changes to the subscriber itself.
 
 ---
 

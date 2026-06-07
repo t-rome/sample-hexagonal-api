@@ -12,11 +12,6 @@ use Symfony\Component\Uid\Uuid;
 
 class NotifyUserOnOrderPaidTest extends TestCase
 {
-    public function testSubscribesToOrderPaid(): void
-    {
-        $this->assertArrayHasKey(OrderPaid::class, NotifyUserOnOrderPaid::getSubscribedEvents());
-    }
-
     public function testNotifiesUserOnOrderPaid(): void
     {
         $notifier = $this->createMock(NotificationServiceInterface::class);
@@ -25,7 +20,7 @@ class NotifyUserOnOrderPaidTest extends TestCase
             ->with(42, $this->stringContains('confirmed'), $this->stringContains('29.97'));
 
         $handler = new NotifyUserOnOrderPaid($notifier);
-        $handler->onOrderPaid(new OrderPaid(
+        $handler->handle(new OrderPaid(
             orderUuid: Uuid::v7(),
             userId: 42,
             totalPrice: 29.97,

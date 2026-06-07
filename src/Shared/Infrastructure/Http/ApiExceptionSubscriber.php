@@ -4,26 +4,18 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Http;
 
-use App\Order\Domain\Exception\OrderNotFoundException;
-use App\Order\Domain\Exception\OrderNotPayableException;
-use App\Order\Domain\Exception\PaymentFailedException;
-use App\Product\Domain\Exception\InsufficientStockException;
-use App\Product\Domain\Exception\ProductNotFoundException;
-use App\User\Domain\Exception\UserAlreadyExistsException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
-use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 final class ApiExceptionSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly LoggerInterface $logger)
-    {
+    /** @param iterable<ExceptionMapperInterface> $mappers */
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        private readonly iterable $mappers,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -34,63 +26,23 @@ final class ApiExceptionSubscriber implements EventSubscriberInterface
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
-        $response = $this->buildResponse($exception);
 
-        if (null === $response) {
-            return;
-        }
-
-        if ($response->getStatusCode() >= 500) {
-            $this->logger->error($exception->getMessage(), ['exception' => $exception]);
-        } else {
-            $this->logger->info($exception->getMessage(), ['exception_class' => $exception::class]);
-        }
-
-        $event->setResponse($response);
-    }
-
-    private function buildResponse(\Throwable $exception): ?JsonResponse
-    {
-        if ($exception instanceof AccessDeniedException) {
-            return new JsonResponse(['error' => 'Access denied.'], Response::HTTP_FORBIDDEN);
-        }
-
-        if ($exception instanceof ProductNotFoundException || $exception instanceof OrderNotFoundException) {
-            return new JsonResponse(['error' => $exception->getMessage()], Response::HTTP_NOT_FOUND);
-        }
-
-        if ($exception instanceof OrderNotPayableException) {
-            return new JsonResponse(['error' => $exception->getMessage()], Response::HTTP_CONFLICT);
-        }
-
-        if ($exception instanceof PaymentFailedException) {
-            return new JsonResponse(['error' => $exception->getMessage()], Response::HTTP_PAYMENT_REQUIRED);
-        }
-
-        if ($exception instanceof UserAlreadyExistsException) {
-            return new JsonResponse(['error' => $exception->getMessage()], Response::HTTP_CONFLICT);
-        }
-
-        if ($exception instanceof InsufficientStockException) {
-            return new JsonResponse(['error' => $exception->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-
-        $previous = $exception->getPrevious();
-        if ($exception instanceof HttpExceptionInterface && $previous instanceof ValidationFailedException) {
-            $violations = [];
-            foreach ($previous->getViolations() as $violation) {
-                $violations[] = [
-                    'field' => $violation->getPropertyPath(),
-                    'message' => $violation->getMessage(),
-                ];
+        foreach ($this->mappers as $mapper) {
+            if (!$mapper->supports($exception)) {
+                continue;
             }
 
-            return new JsonResponse(
-                ['error' => 'Validation failed', 'violations' => $violations],
-                Response::HTTP_UNPROCESSABLE_ENTITY,
-            );
-        }
+            $response = $mapper->toResponse($exception);
 
-        return null;
+            if ($response->getStatusCode() >= 500) {
+                $this->logger->error($exception->getMessage(), ['exception' => $exception]);
+            } else {
+                $this->logger->info($exception->getMessage(), ['exception_class' => $exception::class]);
+            }
+
+            $event->setResponse($response);
+
+            return;
+        }
     }
 }

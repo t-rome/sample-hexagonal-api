@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\Security;
 
+use App\User\Domain\Port\TokenRevocationInterface;
 use Psr\Cache\CacheItemPoolInterface;
 
-final class JwtBlocklist
+final class JwtBlocklist implements TokenRevocationInterface
 {
     public function __construct(
         private readonly CacheItemPoolInterface $cache,
     ) {
     }
 
-    public function add(string $jti, \DateTimeImmutable $expiresAt): void
+    public function revoke(string $jti, \DateTimeImmutable $expiresAt): void
     {
         $item = $this->cache->getItem($this->key($jti));
         $item->set(true);

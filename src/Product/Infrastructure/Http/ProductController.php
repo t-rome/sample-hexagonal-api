@@ -5,19 +5,17 @@ declare(strict_types=1);
 namespace App\Product\Infrastructure\Http;
 
 use App\Product\Application\Command\CreateProduct\CreateProductCommand;
-use App\Product\Application\Command\CreateProduct\CreateProductHandler;
 use App\Product\Application\Command\DeleteProduct\DeleteProductCommand;
-use App\Product\Application\Command\DeleteProduct\DeleteProductHandler;
 use App\Product\Application\Command\UpdateProduct\UpdateProductCommand;
-use App\Product\Application\Command\UpdateProduct\UpdateProductHandler;
-use App\Product\Application\Query\GetProduct\GetProductHandler;
 use App\Product\Application\Query\GetProduct\GetProductQuery;
-use App\Product\Application\Query\ListProducts\ListProductsHandler;
 use App\Product\Application\Query\ListProducts\ListProductsQuery;
 use App\Product\Application\Query\ReadModel\ProductView;
+use App\Product\Domain\Model\Product;
 use App\Product\Infrastructure\Http\Dto\CreateProductDto;
 use App\Product\Infrastructure\Http\Dto\UpdateProductDto;
 use App\Product\Infrastructure\Security\ProductVoter;
+use App\Shared\Application\Bus\CommandBusInterface;
+use App\Shared\Application\Bus\QueryBusInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,24 +26,21 @@ use Symfony\Component\Routing\Attribute\Route;
 class ProductController extends AbstractController
 {
     public function __construct(
-        private readonly ListProductsHandler $listHandler,
-        private readonly GetProductHandler $getHandler,
-        private readonly CreateProductHandler $createHandler,
-        private readonly UpdateProductHandler $updateHandler,
-        private readonly DeleteProductHandler $deleteHandler,
+        private readonly CommandBusInterface $commandBus,
+        private readonly QueryBusInterface $queryBus,
     ) {
     }
 
     #[Route('', methods: ['GET'])]
     public function list(): JsonResponse
     {
-        return $this->json($this->listHandler->handle(new ListProductsQuery()));
+        return $this->json($this->queryBus->ask(new ListProductsQuery()));
     }
 
     #[Route('/{id}', methods: ['GET'])]
     public function get(int $id): JsonResponse
     {
-        return $this->json($this->getHandler->handle(new GetProductQuery($id)));
+        return $this->json($this->queryBus->ask(new GetProductQuery($id)));
     }
 
     #[Route('', methods: ['POST'])]
@@ -53,9 +48,10 @@ class ProductController extends AbstractController
     {
         $this->denyAccessUnlessGranted(ProductVoter::CREATE);
 
-        $product = $this->createHandler->handle(
+        $product = $this->commandBus->dispatch(
             new CreateProductCommand($dto->name, $dto->description, $dto->price, $dto->stock),
         );
+        \assert($product instanceof Product);
 
         return $this->json(ProductView::fromDomain($product), Response::HTTP_CREATED);
     }
@@ -65,9 +61,10 @@ class ProductController extends AbstractController
     {
         $this->denyAccessUnlessGranted(ProductVoter::UPDATE);
 
-        $product = $this->updateHandler->handle(
+        $product = $this->commandBus->dispatch(
             new UpdateProductCommand($id, $dto->name, $dto->description, $dto->price),
         );
+        \assert($product instanceof Product);
 
         return $this->json(ProductView::fromDomain($product));
     }
@@ -77,7 +74,7 @@ class ProductController extends AbstractController
     {
         $this->denyAccessUnlessGranted(ProductVoter::DELETE);
 
-        $this->deleteHandler->handle(new DeleteProductCommand($id));
+        $this->commandBus->dispatch(new DeleteProductCommand($id));
 
         return $this->json(null, Response::HTTP_NO_CONTENT);
     }

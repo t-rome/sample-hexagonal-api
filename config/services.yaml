@@ -43,5 +43,38 @@ services:
     App\Order\Domain\Port\PaymentGatewayInterface:
         class: App\Order\Infrastructure\Payment\FakePaymentGateway
 
+    App\Shared\Domain\DomainEventPublisherInterface:
+        class: App\Shared\Infrastructure\EventPublisher\SymfonyDomainEventPublisher
+
+    App\Shared\Application\Bus\CommandBusInterface:
+        class: App\Shared\Infrastructure\Bus\SymfonyCommandBus
+        arguments:
+            $locator: !service_locator
+                App\Order\Application\Command\PlaceOrder\PlaceOrderCommand: '@App\Order\Application\Command\PlaceOrder\PlaceOrderHandler'
+                App\Order\Application\Command\PayOrder\PayOrderCommand: '@App\Order\Application\Command\PayOrder\PayOrderHandler'
+                App\Product\Application\Command\CreateProduct\CreateProductCommand: '@App\Product\Application\Command\CreateProduct\CreateProductHandler'
+                App\Product\Application\Command\UpdateProduct\UpdateProductCommand: '@App\Product\Application\Command\UpdateProduct\UpdateProductHandler'
+                App\Product\Application\Command\DeleteProduct\DeleteProductCommand: '@App\Product\Application\Command\DeleteProduct\DeleteProductHandler'
+                App\User\Application\Command\RegisterUser\RegisterUserCommand: '@App\User\Application\Command\RegisterUser\RegisterUserHandler'
+
+    App\Shared\Application\Bus\QueryBusInterface:
+        class: App\Shared\Infrastructure\Bus\SymfonyQueryBus
+        arguments:
+            $locator: !service_locator
+                App\Order\Application\Query\GetOrder\GetOrderQuery: '@App\Order\Application\Query\GetOrder\GetOrderHandler'
+                App\Order\Application\Query\ListOrders\ListOrdersQuery: '@App\Order\Application\Query\ListOrders\ListOrdersHandler'
+                App\Product\Application\Query\GetProduct\GetProductQuery: '@App\Product\Application\Query\GetProduct\GetProductHandler'
+                App\Product\Application\Query\ListProducts\ListProductsQuery: '@App\Product\Application\Query\ListProducts\ListProductsHandler'
+
+    App\User\Domain\Port\TokenRevocationInterface:
+        class: App\User\Infrastructure\Security\JwtBlocklist
+
+    App\User\Domain\Port\PasswordHasherInterface:
+        class: App\User\Infrastructure\Security\SymfonyPasswordHasher
+
     App\Shared\Domain\NotificationServiceInterface:
         class: App\Shared\Infrastructure\Notification\FakeNotificationService
+
+    App\Shared\Infrastructure\Http\ApiExceptionSubscriber:
+        arguments:
+            $mappers: !tagged_iterator app.exception_mapper

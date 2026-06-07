@@ -13,9 +13,9 @@ use App\Order\Domain\Model\OrderItem;
 use App\Order\Domain\Model\OrderStatus;
 use App\Order\Domain\Port\PaymentGatewayInterface;
 use App\Order\Domain\Repository\OrderRepositoryInterface;
+use App\Shared\Domain\DomainEventPublisherInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class PayOrderHandlerTest extends TestCase
 {
@@ -46,12 +46,12 @@ class PayOrderHandlerTest extends TestCase
     private function makeHandler(
         OrderRepositoryInterface $orderRepo,
         ?PaymentGatewayInterface $gateway = null,
-        ?EventDispatcherInterface $dispatcher = null,
+        ?DomainEventPublisherInterface $publisher = null,
     ): PayOrderHandler {
         return new PayOrderHandler(
             $orderRepo,
             $gateway ?? $this->createStub(PaymentGatewayInterface::class),
-            $dispatcher ?? $this->createStub(EventDispatcherInterface::class),
+            $publisher ?? $this->createStub(DomainEventPublisherInterface::class),
         );
     }
 
@@ -67,10 +67,10 @@ class PayOrderHandlerTest extends TestCase
         $gateway = $this->createMock(PaymentGatewayInterface::class);
         $gateway->expects($this->once())->method('charge');
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher->expects($this->once())->method('dispatch');
+        $publisher = $this->createMock(DomainEventPublisherInterface::class);
+        $publisher->expects($this->once())->method('publish');
 
-        $result = $this->makeHandler($orderRepo, $gateway, $dispatcher)->handle(new PayOrderCommand(1));
+        $result = $this->makeHandler($orderRepo, $gateway, $publisher)->handle(new PayOrderCommand(1));
 
         $this->assertSame(OrderStatus::Confirmed, $result->getStatus());
     }

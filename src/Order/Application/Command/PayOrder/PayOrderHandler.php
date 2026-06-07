@@ -8,14 +8,14 @@ use App\Order\Domain\Exception\OrderNotFoundException;
 use App\Order\Domain\Model\Order;
 use App\Order\Domain\Port\PaymentGatewayInterface;
 use App\Order\Domain\Repository\OrderRepositoryInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use App\Shared\Domain\DomainEventPublisherInterface;
 
 final readonly class PayOrderHandler
 {
     public function __construct(
         private OrderRepositoryInterface $orderRepository,
         private PaymentGatewayInterface $paymentGateway,
-        private EventDispatcherInterface $eventDispatcher,
+        private DomainEventPublisherInterface $eventPublisher,
     ) {
     }
 
@@ -33,7 +33,7 @@ final readonly class PayOrderHandler
         $savedOrder = $this->orderRepository->save($order);
 
         foreach ($order->releaseEvents() as $event) {
-            $this->eventDispatcher->dispatch($event);
+            $this->eventPublisher->publish($event);
         }
 
         return $savedOrder;

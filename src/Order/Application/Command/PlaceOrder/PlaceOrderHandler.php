@@ -9,14 +9,14 @@ use App\Order\Domain\Model\OrderItem;
 use App\Order\Domain\Repository\OrderRepositoryInterface;
 use App\Product\Domain\Exception\ProductNotFoundException;
 use App\Product\Domain\Repository\ProductRepositoryInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use App\Shared\Domain\DomainEventPublisherInterface;
 
 final readonly class PlaceOrderHandler
 {
     public function __construct(
         private OrderRepositoryInterface $orderRepository,
         private ProductRepositoryInterface $productRepository,
-        private EventDispatcherInterface $eventDispatcher,
+        private DomainEventPublisherInterface $eventPublisher,
     ) {
     }
 
@@ -41,7 +41,7 @@ final readonly class PlaceOrderHandler
         $savedOrder = $this->orderRepository->save($order);
 
         foreach ($order->releaseEvents() as $event) {
-            $this->eventDispatcher->dispatch($event);
+            $this->eventPublisher->publish($event);
         }
 
         return $savedOrder;

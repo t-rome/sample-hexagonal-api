@@ -25,11 +25,6 @@ class ReserveStockOnOrderPlacedTest extends TestCase
         $this->handler = new ReserveStockOnOrderPlaced($this->repository);
     }
 
-    public function testSubscribesToOrderPlaced(): void
-    {
-        $this->assertArrayHasKey(OrderPlaced::class, ReserveStockOnOrderPlaced::getSubscribedEvents());
-    }
-
     public function testReservesStockForEachItem(): void
     {
         $laptop = Product::reconstitute(1, 'Laptop', null, 999.99, new \DateTimeImmutable(), 10);
@@ -58,7 +53,7 @@ class ReserveStockOnOrderPlacedTest extends TestCase
             ],
         );
 
-        $this->handler->onOrderPlaced($event);
+        $this->handler->handle($event);
 
         $this->assertSame(8, $laptop->getStock());
         $this->assertSame(49, $mouse->getStock());
@@ -80,7 +75,7 @@ class ReserveStockOnOrderPlacedTest extends TestCase
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('Product #99 not found during stock reservation.');
 
-        $this->handler->onOrderPlaced($event);
+        $this->handler->handle($event);
     }
 
     public function testThrowsWhenStockInsufficient(): void
@@ -98,6 +93,6 @@ class ReserveStockOnOrderPlacedTest extends TestCase
 
         $this->expectException(InsufficientStockException::class);
 
-        $this->handler->onOrderPlaced($event);
+        $this->handler->handle($event);
     }
 }

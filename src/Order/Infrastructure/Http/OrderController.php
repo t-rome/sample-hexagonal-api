@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace App\Order\Infrastructure\Http;
 
 use App\Order\Application\Command\PayOrder\PayOrderCommand;
-use App\Order\Application\Command\PayOrder\PayOrderHandler;
 use App\Order\Application\Command\PlaceOrder\OrderItemData;
 use App\Order\Application\Command\PlaceOrder\PlaceOrderCommand;
-use App\Order\Application\Command\PlaceOrder\PlaceOrderHandler;
-use App\Order\Application\Query\GetOrder\GetOrderHandler;
 use App\Order\Application\Query\GetOrder\GetOrderQuery;
-use App\Order\Application\Query\ListOrders\ListOrdersHandler;
 use App\Order\Application\Query\ListOrders\ListOrdersQuery;
 use App\Order\Application\Query\ReadModel\OrderView;
+use App\Order\Domain\Model\Order;
 use App\Order\Infrastructure\Http\Dto\PlaceOrderDto;
+use App\Shared\Application\Bus\CommandBusInterface;
+use App\Shared\Application\Bus\QueryBusInterface;
 use App\User\Infrastructure\Persistence\UserRecord;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,29 +25,28 @@ use Symfony\Component\Routing\Attribute\Route;
 class OrderController extends AbstractController
 {
     public function __construct(
-        private readonly PlaceOrderHandler $placeHandler,
-        private readonly PayOrderHandler $payHandler,
-        private readonly GetOrderHandler $getHandler,
-        private readonly ListOrdersHandler $listHandler,
+        private readonly CommandBusInterface $commandBus,
+        private readonly QueryBusInterface $queryBus,
     ) {
     }
 
     #[Route('', methods: ['GET'])]
     public function list(): JsonResponse
     {
-        return $this->json($this->listHandler->handle(new ListOrdersQuery()));
+        return $this->json($this->queryBus->ask(new ListOrdersQuery()));
     }
 
     #[Route('/{id}', methods: ['GET'])]
     public function get(int $id): JsonResponse
     {
-        return $this->json($this->getHandler->handle(new GetOrderQuery($id)));
+        return $this->json($this->queryBus->ask(new GetOrderQuery($id)));
     }
 
     #[Route('/{id}/pay', methods: ['PATCH'])]
     public function pay(int $id): JsonResponse
     {
-        $order = $this->payHandler->handle(new PayOrderCommand($id));
+        $order = $this->commandBus->dispatch(new PayOrderCommand($id));
+        \assert($order instanceof Order);
 
         return $this->json(OrderView::fromDomain($order));
     }
@@ -64,7 +62,9 @@ class OrderController extends AbstractController
             static fn ($item) => new OrderItemData($item->productId, $item->quantity),
             $dto->items,
         );
-        $order = $this->placeHandler->handle(new PlaceOrderCommand($userId, $items));
+
+        $order = $this->commandBus->dispatch(new PlaceOrderCommand($userId, $items));
+        \assert($order instanceof Order);
 
         return $this->json(OrderView::fromDomain($order), Response::HTTP_CREATED);
     }

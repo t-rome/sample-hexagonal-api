@@ -14,9 +14,9 @@ use App\Order\Domain\Repository\OrderRepositoryInterface;
 use App\Product\Domain\Exception\ProductNotFoundException;
 use App\Product\Domain\Model\Product;
 use App\Product\Domain\Repository\ProductRepositoryInterface;
+use App\Shared\Domain\DomainEventPublisherInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class PlaceOrderHandlerTest extends TestCase
 {
@@ -45,10 +45,10 @@ class PlaceOrderHandlerTest extends TestCase
             ->with($this->isInstanceOf(Order::class))
             ->willReturn($this->makeSavedOrder());
 
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher->expects($this->once())->method('dispatch');
+        $publisher = $this->createMock(DomainEventPublisherInterface::class);
+        $publisher->expects($this->once())->method('publish');
 
-        $handler = new PlaceOrderHandler($orderRepo, $productRepo, $dispatcher);
+        $handler = new PlaceOrderHandler($orderRepo, $productRepo, $publisher);
         $result = $handler->handle(new PlaceOrderCommand(42, [new OrderItemData(1, 2)]));
 
         $this->assertSame(1, $result->getId());
@@ -61,11 +61,11 @@ class PlaceOrderHandlerTest extends TestCase
         $productRepo->expects($this->once())->method('findById')->with(99)->willReturn(null);
 
         $orderRepo = $this->createStub(OrderRepositoryInterface::class);
-        $dispatcher = $this->createStub(EventDispatcherInterface::class);
+        $publisher = $this->createStub(DomainEventPublisherInterface::class);
 
         $this->expectException(ProductNotFoundException::class);
 
-        new PlaceOrderHandler($orderRepo, $productRepo, $dispatcher)
+        new PlaceOrderHandler($orderRepo, $productRepo, $publisher)
             ->handle(new PlaceOrderCommand(42, [new OrderItemData(99, 1)]));
     }
 }
