@@ -11,7 +11,7 @@
   </style>
 </head>
 <body>
-<svg viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif">
+<svg viewBox="0 0 1400 920" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif">
   <defs>
     <marker id="arrGray" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
       <path d="M0,0 L8,4 L0,8 Z" fill="#475569"/>
@@ -105,12 +105,12 @@
   <text x="607" y="465" text-anchor="middle" font-size="7.5" fill="#7dd3fc">Read / Write</text>
 
   <!-- BOTTOM: Event Handlers -->
-  <rect x="324" y="587" width="232" height="80" rx="5" fill="#140933" stroke="#7c3aed" stroke-width="1.5"/>
-  <text x="440" y="601" text-anchor="middle" font-size="9" font-weight="700" fill="#a78bfa">Event Handlers  (Application — pure PHP)</text>
-  <text x="440" y="613" text-anchor="middle" font-size="7.5" fill="#c4b5fd">ReserveStockOnOrderPlaced · NotifyUserOnOrderPaid</text>
-  <text x="440" y="626" text-anchor="middle" font-size="7.5" fill="#7c3aed">handle(OrderPlaced) · handle(OrderPaid)</text>
-  <text x="440" y="638" text-anchor="middle" font-size="7" fill="#5b21b6">↑ Infra Subscribers wire Symfony EventSubscriberInterface:</text>
-  <text x="440" y="649" text-anchor="middle" font-size="6" fill="#5b21b6">ReserveStockOnOrderPlacedSubscriber · NotifyUserOnOrderPaidSubscriber</text>
+  <rect x="324" y="587" width="232" height="80" rx="5" fill="#0b1e3a" stroke="#0369a1" stroke-width="1.5"/>
+  <text x="440" y="601" text-anchor="middle" font-size="9" font-weight="700" fill="#38bdf8">Event Handlers  (Application — pure PHP)</text>
+  <text x="440" y="613" text-anchor="middle" font-size="7.5" fill="#7dd3fc">ReserveStockOnOrderPlaced · NotifyUserOnOrderPaid</text>
+  <text x="440" y="626" text-anchor="middle" font-size="7.5" fill="#3b82f6">handle(OrderPlaced) · handle(OrderPaid)</text>
+  <text x="440" y="638" text-anchor="middle" font-size="7" fill="#1d4ed8">↑ Infra Subscribers wire Symfony EventSubscriberInterface:</text>
+  <text x="440" y="649" text-anchor="middle" font-size="6" fill="#1d4ed8">ReserveStockOnOrderPlacedSubscriber · NotifyUserOnOrderPaidSubscriber</text>
 
   <!-- ─────── INFRASTRUCTURE RING CONTENT ─────── -->
 
@@ -145,21 +145,21 @@
   <!-- ─────── EXTERNAL SYSTEMS ─────── -->
 
   <!-- REST Client (top) -->
-  <rect x="348" y="80" width="184" height="45" rx="7" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
-  <text x="440" y="99" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">HTTP Client</text>
-  <text x="440" y="115" text-anchor="middle" font-size="9" fill="#64748b">REST Requests + JWT Bearer Token</text>
+  <rect x="348" y="100" width="184" height="45" rx="7" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+  <text x="440" y="119" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">HTTP Client</text>
+  <text x="440" y="135" text-anchor="middle" font-size="9" fill="#64748b">REST Requests + JWT Bearer Token</text>
 
   <!-- Arrow: HTTP Client → HTTP Controllers -->
-  <line x1="440" y1="125" x2="440" y2="201" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrGray)"/>
-  <text x="454" y="170" font-size="8" fill="#475569">HTTP/HTTPS</text>
+  <line x1="440" y1="145" x2="440" y2="201" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrGray)"/>
+  <text x="454" y="175" font-size="8" fill="#475569">HTTP/HTTPS</text>
 
   <!-- Database (bottom) -->
-  <rect x="335" y="773" width="210" height="44" rx="7" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
-  <text x="440" y="791" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">Database</text>
-  <text x="440" y="807" text-anchor="middle" font-size="9" fill="#64748b">PostgreSQL · Doctrine ORM</text>
+  <rect x="335" y="795" width="210" height="44" rx="7" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+  <text x="440" y="813" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">Database</text>
+  <text x="440" y="829" text-anchor="middle" font-size="9" fill="#64748b">PostgreSQL · Doctrine ORM</text>
 
   <!-- Arrow: Persistence → Database -->
-  <line x1="440" y1="748" x2="440" y2="771" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrGray)"/>
+  <line x1="440" y1="748" x2="440" y2="793" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrGray)"/>
 
   <!-- ─────── DOMAIN EVENT FLOW (cross-context) ─────── -->
   <!-- OrderPlaced originates in domain hex, flows to Event Handler in application ring -->
@@ -363,39 +363,39 @@
   <!-- ═════════════════════════
        BOTTOM LEGEND (left panel)
   ═════════════════════════ -->
-  <rect x="96" y="843" width="758" height="46" rx="5" fill="#0c1222" stroke="#1e293b" stroke-width="1"/>
+  <rect x="96" y="860" width="758" height="46" rx="5" fill="#0c1222" stroke="#1e293b" stroke-width="1"/>
 
-  <rect x="112" y="851" width="11" height="11" rx="2" fill="#130b28" stroke="#6d28d9" stroke-width="1.5"/>
-  <text x="127" y="861" font-size="8.5" fill="#8b5cf6">Infrastructure</text>
+  <rect x="112" y="868" width="11" height="11" rx="2" fill="#130b28" stroke="#6d28d9" stroke-width="1.5"/>
+  <text x="127" y="878" font-size="8.5" fill="#8b5cf6">Infrastructure</text>
 
-  <rect x="210" y="851" width="11" height="11" rx="2" fill="#081522" stroke="#0369a1" stroke-width="1.5"/>
-  <text x="225" y="861" font-size="8.5" fill="#38bdf8">Application</text>
+  <rect x="210" y="868" width="11" height="11" rx="2" fill="#081522" stroke="#0369a1" stroke-width="1.5"/>
+  <text x="225" y="878" font-size="8.5" fill="#38bdf8">Application</text>
 
-  <rect x="298" y="851" width="11" height="11" rx="2" fill="#06111e" stroke="#0891b2" stroke-width="1.5"/>
-  <text x="313" y="861" font-size="8.5" fill="#22d3ee">Domain</text>
+  <rect x="298" y="868" width="11" height="11" rx="2" fill="#06111e" stroke="#0891b2" stroke-width="1.5"/>
+  <text x="313" y="878" font-size="8.5" fill="#22d3ee">Domain</text>
 
-  <rect x="362" y="851" width="11" height="11" rx="2" fill="#1c1003" stroke="#b45309" stroke-width="1.5"/>
-  <text x="377" y="861" font-size="8.5" fill="#fbbf24">Domain Event</text>
+  <rect x="362" y="868" width="11" height="11" rx="2" fill="#1c1003" stroke="#b45309" stroke-width="1.5"/>
+  <text x="377" y="878" font-size="8.5" fill="#fbbf24">Domain Event</text>
 
-  <rect x="464" y="851" width="11" height="11" rx="2" fill="#09200f" stroke="#16a34a" stroke-width="1.5"/>
-  <text x="479" y="861" font-size="8.5" fill="#4ade80">Persistence</text>
+  <rect x="464" y="868" width="11" height="11" rx="2" fill="#09200f" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="479" y="878" font-size="8.5" fill="#4ade80">Persistence</text>
 
-  <rect x="548" y="851" width="11" height="11" rx="2" fill="#160c35" stroke="#7c3aed" stroke-width="1.5"/>
-  <text x="563" y="861" font-size="8.5" fill="#a78bfa">HTTP Adapter</text>
+  <rect x="548" y="868" width="11" height="11" rx="2" fill="#160c35" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="563" y="878" font-size="8.5" fill="#a78bfa">HTTP Adapter</text>
 
-  <text x="645" y="861" font-size="8" fill="#334155">«AR»=Aggregate Root  ·  ⬡=Port/Interface</text>
+  <text x="645" y="878" font-size="8" fill="#334155">«AR»=Aggregate Root  ·  ⬡=Port/Interface</text>
 
   <!-- 2nd legend row -->
-  <line x1="112" y1="874" x2="140" y2="874" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2"/>
-  <text x="144" y="879" font-size="8" fill="#f59e0b">Event flow (cross-context)</text>
+  <line x1="112" y1="891" x2="140" y2="891" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="144" y="896" font-size="8" fill="#f59e0b">Event flow (cross-context)</text>
 
-  <line x1="274" y1="874" x2="302" y2="874" stroke="#475569" stroke-width="1.5" stroke-dasharray="4,2"/>
-  <text x="306" y="879" font-size="8" fill="#94a3b8">HTTP / DB (external)</text>
+  <line x1="274" y1="891" x2="302" y2="891" stroke="#475569" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="306" y="896" font-size="8" fill="#94a3b8">HTTP / DB (external)</text>
 
-  <line x1="424" y1="874" x2="452" y2="874" stroke="#3b82f6" stroke-width="1.5"/>
-  <text x="456" y="879" font-size="8" fill="#818cf8">Dependency direction (inward)</text>
+  <line x1="424" y1="891" x2="452" y2="891" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="456" y="896" font-size="8" fill="#818cf8">Dependency direction (inward)</text>
 
-  <text x="628" y="879" font-size="8" fill="#334155">Adapters implement Ports (Interfaces)</text>
+  <text x="628" y="896" font-size="8" fill="#334155">Adapters implement Ports (Interfaces)</text>
 
 </svg>
 </body>
