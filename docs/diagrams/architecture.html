@@ -80,12 +80,12 @@
   <!-- ─────── APPLICATION RING CONTENT ─────── -->
 
   <!-- TOP: Queries -->
-  <rect x="342" y="297" width="196" height="68" rx="5" fill="#0b1e3a" stroke="#0369a1" stroke-width="1.5"/>
-  <text x="440" y="313" text-anchor="middle" font-size="9.5" font-weight="700" fill="#38bdf8">Queries  (CQRS – Read)</text>
-  <text x="440" y="327" text-anchor="middle" font-size="8" fill="#7dd3fc">GetOrderQuery · GetOrderHandler</text>
-  <text x="440" y="339" text-anchor="middle" font-size="8" fill="#7dd3fc">ListOrdersQuery · ListOrdersHandler</text>
-  <text x="440" y="351" text-anchor="middle" font-size="8" fill="#7dd3fc">GetProductQuery · ListProductsQuery</text>
-  <text x="440" y="362" text-anchor="middle" font-size="7.5" fill="#1d4ed8">→ Read-Models: OrderView · ProductView</text>
+  <rect x="342" y="307" width="196" height="68" rx="5" fill="#0b1e3a" stroke="#0369a1" stroke-width="1.5"/>
+  <text x="440" y="323" text-anchor="middle" font-size="9.5" font-weight="700" fill="#38bdf8">Queries  (CQRS – Read)</text>
+  <text x="440" y="337" text-anchor="middle" font-size="8" fill="#7dd3fc">GetOrderQuery · GetOrderHandler</text>
+  <text x="440" y="349" text-anchor="middle" font-size="8" fill="#7dd3fc">ListOrdersQuery · ListOrdersHandler</text>
+  <text x="440" y="361" text-anchor="middle" font-size="8" fill="#7dd3fc">GetProductQuery · ListProductsQuery</text>
+  <text x="440" y="372" text-anchor="middle" font-size="7.5" fill="#1d4ed8">→ Read-Models: OrderView · ProductView</text>
 
   <!-- LEFT: Commands -->
   <rect x="231" y="400" width="86" height="112" rx="5" fill="#0b1e3a" stroke="#0369a1" stroke-width="1.5"/>
@@ -105,31 +105,34 @@
   <text x="607" y="465" text-anchor="middle" font-size="7.5" fill="#7dd3fc">Read / Write</text>
 
   <!-- BOTTOM: Event Handlers -->
-  <rect x="324" y="587" width="232" height="67" rx="5" fill="#140933" stroke="#7c3aed" stroke-width="1.5"/>
+  <rect x="324" y="587" width="232" height="80" rx="5" fill="#140933" stroke="#7c3aed" stroke-width="1.5"/>
   <text x="440" y="601" text-anchor="middle" font-size="9" font-weight="700" fill="#a78bfa">Event Handlers  (Application — pure PHP)</text>
   <text x="440" y="613" text-anchor="middle" font-size="7.5" fill="#c4b5fd">ReserveStockOnOrderPlaced · NotifyUserOnOrderPaid</text>
   <text x="440" y="626" text-anchor="middle" font-size="7.5" fill="#7c3aed">handle(OrderPlaced) · handle(OrderPaid)</text>
-  <text x="440" y="639" text-anchor="middle" font-size="7.5" fill="#5b21b6">↑ Infra Subscribers wire Symfony EventSubscriberInterface</text>
+  <text x="440" y="638" text-anchor="middle" font-size="7" fill="#5b21b6">↑ Infra Subscribers wire Symfony EventSubscriberInterface:</text>
+  <text x="440" y="649" text-anchor="middle" font-size="6" fill="#5b21b6">ReserveStockOnOrderPlacedSubscriber · NotifyUserOnOrderPaidSubscriber</text>
 
   <!-- ─────── INFRASTRUCTURE RING CONTENT ─────── -->
 
   <!-- TOP: HTTP Controllers (Primary Adapters) -->
-  <rect x="270" y="211" width="340" height="82" rx="5" fill="#160c35" stroke="#7c3aed" stroke-width="1.5"/>
-  <text x="440" y="229" text-anchor="middle" font-size="9.5" font-weight="700" fill="#c4b5fd">Primary Adapters — HTTP Controllers</text>
-  <text x="440" y="244" text-anchor="middle" font-size="8.5" fill="#a78bfa">OrderController  ·  ProductController  ·  AuthController  ·  HealthController</text>
-  <text x="440" y="258" text-anchor="middle" font-size="8" fill="#7c3aed">DTOs: PlaceOrderDto · CreateProductDto · UpdateProductDto · RegisterUserDto</text>
-  <text x="440" y="271" text-anchor="middle" font-size="7.5" fill="#4c1d95">@Route('/api/orders')  ·  @Route('/api/products')  ·  @Route('/api/auth')  ·  @Route('/health')</text>
-  <text x="440" y="283" text-anchor="middle" font-size="7.5" fill="#6d28d9">ApiExceptionSubscriber — domain exceptions → JSON · denyAccessUnlessGranted(ProductVoter::*) on write ops</text>
+  <rect x="270" y="201" width="340" height="96" rx="5" fill="#160c35" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="440" y="219" text-anchor="middle" font-size="9.5" font-weight="700" fill="#c4b5fd">Primary Adapters — HTTP Controllers</text>
+  <text x="440" y="234" text-anchor="middle" font-size="8.5" fill="#a78bfa">OrderController  ·  ProductController  ·  AuthController  ·  HealthController</text>
+  <text x="440" y="248" text-anchor="middle" font-size="8" fill="#7c3aed">DTOs: PlaceOrderDto · CreateProductDto · UpdateProductDto · RegisterUserDto</text>
+  <text x="440" y="261" text-anchor="middle" font-size="7.5" fill="#4c1d95">@Route('/api/orders')  ·  @Route('/api/products')  ·  @Route('/api/auth')  ·  @Route('/health')</text>
+  <text x="440" y="272" text-anchor="middle" font-size="7" fill="#6d28d9">ExceptionMappers (Order · Product · User · Http) via ExceptionMapperInterface → ApiExceptionSubscriber → JSON</text>
+  <text x="440" y="285" text-anchor="middle" font-size="7" fill="#6d28d9">denyAccessUnlessGranted(ProductVoter::*) on product write operations</text>
 
   <!-- LEFT: Security -->
-  <rect x="130" y="420" width="90" height="100" rx="5" fill="#1a1400" stroke="#ca8a04" stroke-width="1.5"/>
-  <text x="175" y="437" text-anchor="middle" font-size="8.5" font-weight="700" fill="#fbbf24">Security</text>
-  <text x="175" y="451" text-anchor="middle" font-size="7.5" fill="#fde68a">JwtBlocklist</text>
-  <text x="175" y="463" text-anchor="middle" font-size="7.5" fill="#fde68a">JwtCreated</text>
-  <text x="175" y="475" text-anchor="middle" font-size="7.5" fill="#fde68a">Listener</text>
-  <text x="175" y="487" text-anchor="middle" font-size="7.5" fill="#fde68a">Blocklist</text>
-  <text x="175" y="501" text-anchor="middle" font-size="7.5" fill="#fde68a">ProductVoter</text>
-  <text x="175" y="513" text-anchor="middle" font-size="7" fill="#78350f">User+Product / Infra</text>
+  <rect x="130" y="420" width="90" height="115" rx="5" fill="#1a1400" stroke="#ca8a04" stroke-width="1.5"/>
+  <text x="175" y="436" text-anchor="middle" font-size="8.5" font-weight="700" fill="#fbbf24">Security</text>
+  <text x="175" y="449" text-anchor="middle" font-size="6.5" fill="#fde68a">JwtBlocklist</text>
+  <text x="175" y="460" text-anchor="middle" font-size="6.5" fill="#fde68a">JwtCreatedListener</text>
+  <text x="175" y="471" text-anchor="middle" font-size="6.5" fill="#fde68a">JwtBlocklistListener</text>
+  <text x="175" y="482" text-anchor="middle" font-size="6.5" fill="#fde68a">SymfonyPasswordHasher</text>
+  <text x="175" y="493" text-anchor="middle" font-size="6.5" fill="#fde68a">ProductVoter</text>
+  <text x="175" y="507" text-anchor="middle" font-size="6" fill="#78350f">User+Product / Infra</text>
+  <text x="175" y="518" text-anchor="middle" font-size="5.5" fill="#78350f">↑ adapts PasswordHasherInterface</text>
 
   <!-- BOTTOM: Secondary Adapters -->
   <rect x="260" y="662" width="360" height="92" rx="5" fill="#09200f" stroke="#16a34a" stroke-width="1.5"/>
@@ -147,16 +150,16 @@
   <text x="440" y="115" text-anchor="middle" font-size="9" fill="#64748b">REST Requests + JWT Bearer Token</text>
 
   <!-- Arrow: HTTP Client → HTTP Controllers -->
-  <line x1="440" y1="125" x2="440" y2="205" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrGray)"/>
+  <line x1="440" y1="125" x2="440" y2="201" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrGray)"/>
   <text x="454" y="170" font-size="8" fill="#475569">HTTP/HTTPS</text>
 
   <!-- Database (bottom) -->
-  <rect x="335" y="758" width="210" height="44" rx="7" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
-  <text x="440" y="776" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">Database</text>
-  <text x="440" y="792" text-anchor="middle" font-size="9" fill="#64748b">PostgreSQL · Doctrine ORM</text>
+  <rect x="335" y="773" width="210" height="44" rx="7" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+  <text x="440" y="791" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">Database</text>
+  <text x="440" y="807" text-anchor="middle" font-size="9" fill="#64748b">PostgreSQL · Doctrine ORM</text>
 
   <!-- Arrow: Persistence → Database -->
-  <line x1="440" y1="748" x2="440" y2="756" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrGray)"/>
+  <line x1="440" y1="748" x2="440" y2="771" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrGray)"/>
 
   <!-- ─────── DOMAIN EVENT FLOW (cross-context) ─────── -->
   <!-- OrderPlaced originates in domain hex, flows to Event Handler in application ring -->
@@ -221,15 +224,16 @@
   <!-- User card -->
   <rect x="1138" y="141" width="110" height="130" rx="6" fill="#1a1200" stroke="#ca8a04" stroke-width="1.5"/>
   <text x="1193" y="158" text-anchor="middle" font-size="10" font-weight="700" fill="#fbbf24">User</text>
-  <text x="1146" y="173" font-size="7.5" fill="#fde68a">Model:</text>
-  <text x="1149" y="185" font-size="7" fill="#fef3c7">User (Entity)</text>
-  <text x="1146" y="198" font-size="7.5" fill="#fde68a">Security:</text>
-  <text x="1149" y="210" font-size="7" fill="#fef3c7">JwtBlocklist</text>
-  <text x="1149" y="221" font-size="7" fill="#fef3c7">JwtCreatedListener</text>
-  <text x="1149" y="232" font-size="7" fill="#fef3c7">JwtBlocklistListener</text>
-  <text x="1146" y="245" font-size="7.5" fill="#fde68a">Exceptions:</text>
-  <text x="1149" y="257" font-size="7" fill="#64748b">UserAlreadyExists</text>
-  <text x="1146" y="270" font-size="7.5" fill="#fde68a">Command + Repo Port</text>
+  <text x="1146" y="171" font-size="7" fill="#fde68a">Model: User (Entity)</text>
+  <text x="1146" y="182" font-size="7.5" fill="#fde68a">Security (Infra):</text>
+  <text x="1149" y="192" font-size="6.5" fill="#fef3c7">JwtBlocklist · JwtCreatedListener</text>
+  <text x="1149" y="201" font-size="6.5" fill="#fef3c7">JwtBlocklistListener</text>
+  <text x="1146" y="212" font-size="7" fill="#fde68a">Exceptions: UserAlreadyExists</text>
+  <text x="1146" y="223" font-size="7.5" fill="#fde68a">Ports (Domain):</text>
+  <text x="1149" y="233" font-size="6.5" fill="#fde68a">UserRepositoryInterface</text>
+  <text x="1149" y="242" font-size="6.5" fill="#fde68a">PasswordHasherInterface</text>
+  <text x="1149" y="251" font-size="6.5" fill="#fde68a">TokenRevocationInterface</text>
+  <text x="1146" y="262" font-size="7" fill="#fde68a">Command: RegisterUser</text>
 
   <!-- Shared card -->
   <rect x="1255" y="141" width="112" height="130" rx="6" fill="#181818" stroke="#475569" stroke-width="1.5"/>

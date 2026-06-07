@@ -11,6 +11,21 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
+/**
+ * Mapper for Symfony framework exceptions: access denied and input validation failures.
+ *
+ * Handles two cases that are not domain-specific and therefore belong here in Shared:
+ *
+ * 1. AccessDeniedException — thrown by Symfony Security (e.g. via denyAccessUnlessGranted()
+ *    or a Voter) when the authenticated user lacks the required role or permission.
+ *    → 403 Forbidden
+ *
+ * 2. Validation failure — Symfony wraps a ValidationFailedException inside an
+ *    UnprocessableEntityHttpException when a controller DTO fails validation constraints.
+ *    The actual violation list is retrieved via getPrevious() because Symfony's HTTP layer
+ *    stores the original cause as the "previous" exception.
+ *    → 422 Unprocessable Entity with a structured violations array
+ */
 final class HttpExceptionMapper implements ExceptionMapperInterface
 {
     public function supports(\Throwable $exception): bool
