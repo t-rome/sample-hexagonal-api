@@ -23,7 +23,7 @@ use Psr\Container\ContainerInterface;
  * Identical structure to SymfonyCommandBus but for the read side — kept separate
  * so that command and query flows are always independently traceable.
  */
-final class SymfonyQueryBus implements QueryBusInterface
+final readonly class SymfonyQueryBus implements QueryBusInterface
 {
     public function __construct(private readonly ContainerInterface $locator)
     {

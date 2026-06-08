@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * This way the "what to do" (business logic) stays separate from the
  * "how it is triggered" (framework wiring).
  */
-final class ReserveStockOnOrderPlacedSubscriber implements EventSubscriberInterface
+final readonly class ReserveStockOnOrderPlacedSubscriber implements EventSubscriberInterface
 {
     public function __construct(private readonly ReserveStockOnOrderPlacedHandler $handler)
     {

@@ -25,7 +25,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * that any database-generated values (e.g. the auto-incremented id) are reflected
  * in the returned Order.
  */
-final class OrderRepository implements OrderRepositoryInterface
+final readonly class OrderRepository implements OrderRepositoryInterface
 {
     public function __construct(
         private readonly EntityManagerInterface $em,

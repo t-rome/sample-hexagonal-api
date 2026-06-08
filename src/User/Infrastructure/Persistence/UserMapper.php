@@ -20,7 +20,7 @@ use App\User\Domain\Model\User;
  *              Accepts an existing record to allow Doctrine's change-tracking to
  *              detect which columns actually changed (UPDATE instead of INSERT).
  */
-final class UserMapper
+final readonly class UserMapper
 {
     public function toDomain(UserRecord $record): User
     {

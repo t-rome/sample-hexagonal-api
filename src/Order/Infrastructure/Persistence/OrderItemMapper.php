@@ -12,7 +12,7 @@ use App\Order\Domain\Model\OrderItem;
  * Used internally by OrderMapper — never called directly from outside the
  * persistence layer. See OrderMapper for the full mapping rationale.
  */
-final class OrderItemMapper
+final readonly class OrderItemMapper
 {
     public function toDomain(OrderItemRecord $record): OrderItem
     {

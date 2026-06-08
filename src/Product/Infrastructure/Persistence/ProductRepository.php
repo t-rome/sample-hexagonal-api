@@ -25,7 +25,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * that any database-generated values (e.g. the auto-incremented id) are reflected
  * in the returned Product.
  */
-final class ProductRepository implements ProductRepositoryInterface
+final readonly class ProductRepository implements ProductRepositoryInterface
 {
     public function __construct(
         private readonly EntityManagerInterface $em,

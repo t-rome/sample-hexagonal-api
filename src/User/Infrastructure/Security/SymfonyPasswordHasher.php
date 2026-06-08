@@ -19,7 +19,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
  * The domain model (User) never sees Symfony Security; it only works with the
  * already-hashed string returned by this adapter.
  */
-final class SymfonyPasswordHasher implements PasswordHasherInterface
+final readonly class SymfonyPasswordHasher implements PasswordHasherInterface
 {
     public function __construct(private readonly UserPasswordHasherInterface $hasher)
     {

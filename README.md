@@ -63,7 +63,7 @@ src/
 
 ### Domain Events
 
-Domain events decouple bounded contexts. When an order is placed, an `OrderPlaced` event is raised on the aggregate root. The command handler releases accumulated events and publishes them through `DomainEventPublisherInterface` — a port whose Symfony adapter forwards events to the dispatcher. Application event handlers (`NotifyUserOnOrderPaid`, `ReserveStockOnOrderPlaced`) are plain PHP classes with no framework imports; thin Infrastructure subscribers (`NotifyUserOnOrderPaidSubscriber`, `ReserveStockOnOrderPlacedSubscriber`) implement Symfony's `EventSubscriberInterface` and delegate to them. Other contexts react without being directly coupled to Order internals.
+Domain events decouple bounded contexts. When an order is placed, an `OrderPlaced` event is raised on the aggregate root. The command handler releases accumulated events and publishes them through `DomainEventPublisherInterface` — a port whose Symfony adapter forwards events to the dispatcher. Application event handlers (`NotifyUserOnOrderPaidHandler`, `ReserveStockOnOrderPlacedHandler`) are plain PHP classes with no framework imports; thin Infrastructure subscribers (`NotifyUserOnOrderPaidSubscriber`, `ReserveStockOnOrderPlacedSubscriber`) implement Symfony's `EventSubscriberInterface` and delegate to them. Other contexts react without being directly coupled to Order internals.
 
 ### API-First Approach
 

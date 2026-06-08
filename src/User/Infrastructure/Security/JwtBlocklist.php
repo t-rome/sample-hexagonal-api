@@ -19,7 +19,7 @@ use Psr\Cache\CacheItemPoolInterface;
  * whether the presented token's jti has been revoked. If it has, the request is
  * rejected with a 401 before reaching any controller.
  */
-final class JwtBlocklist implements TokenRevocationInterface
+final readonly class JwtBlocklist implements TokenRevocationInterface
 {
     public function __construct(
         private readonly CacheItemPoolInterface $cache,

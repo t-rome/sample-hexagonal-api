@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  *   UserAlreadyExistsException → 409 Conflict   (duplicate email on registration)
  */
-final class UserExceptionMapper implements ExceptionMapperInterface
+final readonly class UserExceptionMapper implements ExceptionMapperInterface
 {
     public function supports(\Throwable $exception): bool
     {

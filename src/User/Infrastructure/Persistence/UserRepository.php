@@ -25,7 +25,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * that any database-generated values (e.g. the auto-incremented id) are reflected
  * in the returned User.
  */
-final class UserRepository implements UserRepositoryInterface
+final readonly class UserRepository implements UserRepositoryInterface
 {
     public function __construct(
         private readonly EntityManagerInterface $em,

@@ -23,7 +23,7 @@ use Psr\Container\ContainerInterface;
  * The service locator (not the full DI container) is injected to keep the bus
  * fast and to make it explicit which commands are supported at a glance in services.yaml.
  */
-final class SymfonyCommandBus implements CommandBusInterface
+final readonly class SymfonyCommandBus implements CommandBusInterface
 {
     public function __construct(private readonly ContainerInterface $locator)
     {

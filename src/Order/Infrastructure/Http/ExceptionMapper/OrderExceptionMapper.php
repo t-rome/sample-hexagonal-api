@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
  *   OrderNotPayableException  → 409 Conflict   (order already paid or cancelled)
  *   PaymentFailedException    → 402 Payment Required
  */
-final class OrderExceptionMapper implements ExceptionMapperInterface
+final readonly class OrderExceptionMapper implements ExceptionMapperInterface
 {
     public function supports(\Throwable $exception): bool
     {

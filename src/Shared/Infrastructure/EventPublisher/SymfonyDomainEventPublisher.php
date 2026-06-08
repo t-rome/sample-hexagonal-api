@@ -22,7 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *     → Infrastructure EventSubscribers are invoked
  *     → they delegate to Application-layer EventHandlers
  */
-final class SymfonyDomainEventPublisher implements DomainEventPublisherInterface
+final readonly class SymfonyDomainEventPublisher implements DomainEventPublisherInterface
 {
     public function __construct(private readonly EventDispatcherInterface $dispatcher)
     {

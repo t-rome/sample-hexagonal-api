@@ -9,7 +9,7 @@ use App\User\Domain\Model\User;
 use App\User\Domain\Port\PasswordHasherInterface;
 use App\User\Domain\Repository\UserRepositoryInterface;
 
-final class RegisterUserHandler
+final readonly class RegisterUserHandler
 {
     public function __construct(
         private readonly UserRepositoryInterface $repository,

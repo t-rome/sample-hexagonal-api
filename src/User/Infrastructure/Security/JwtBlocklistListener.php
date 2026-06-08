@@ -8,7 +8,7 @@ use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTDecodedEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Events;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-final class JwtBlocklistListener implements EventSubscriberInterface
+final readonly class JwtBlocklistListener implements EventSubscriberInterface
 {
     public function __construct(
         private readonly JwtBlocklist $blocklist,

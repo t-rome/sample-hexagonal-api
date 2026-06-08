@@ -20,7 +20,7 @@ use App\Product\Domain\Model\Product;
  *              Accepts an existing record to allow Doctrine's change-tracking to
  *              detect which columns actually changed (UPDATE instead of INSERT).
  */
-final class ProductMapper
+final readonly class ProductMapper
 {
     public function toDomain(ProductRecord $record): Product
     {

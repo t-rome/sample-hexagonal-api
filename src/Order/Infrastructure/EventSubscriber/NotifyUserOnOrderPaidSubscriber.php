@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * This way the "what to do" (business logic) stays separate from the
  * "how it is triggered" (framework wiring).
  */
-final class NotifyUserOnOrderPaidSubscriber implements EventSubscriberInterface
+final readonly class NotifyUserOnOrderPaidSubscriber implements EventSubscriberInterface
 {
     public function __construct(private readonly NotifyUserOnOrderPaidHandler $handler)
     {

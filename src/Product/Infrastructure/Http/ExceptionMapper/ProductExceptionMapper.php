@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
  *   ProductNotFoundException   → 404 Not Found
  *   InsufficientStockException → 422 Unprocessable Entity
  */
-final class ProductExceptionMapper implements ExceptionMapperInterface
+final readonly class ProductExceptionMapper implements ExceptionMapperInterface
 {
     public function supports(\Throwable $exception): bool
     {

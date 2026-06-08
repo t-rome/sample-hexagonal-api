@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  *    stores the original cause as the "previous" exception.
  *    → 422 Unprocessable Entity with a structured violations array
  */
-final class HttpExceptionMapper implements ExceptionMapperInterface
+final readonly class HttpExceptionMapper implements ExceptionMapperInterface
 {
     public function supports(\Throwable $exception): bool
     {
