@@ -1,8 +1,8 @@
 Feature: Create a product
 
   Background:
-    Given a user exists with email "user@test.com" and password "password123"
-    And an admin exists with email "admin@test.com" and password "password123"
+    Given a user exists
+    And an admin exists
     And the following products exist:
       | name           | price   | description       |
       | Laptop Pro     | 1499.99 | A powerful laptop |
@@ -16,7 +16,7 @@ Feature: Create a product
     Then the response status code should be 401
 
   Scenario: Creating a product requires admin role
-    Given I am authenticated as "user@test.com" with password "password123"
+    Given I am authenticated as a user
     When I send a POST request to "/api/products" with body:
       """
       {"name": "Keyboard", "price": 89.99}
@@ -24,7 +24,7 @@ Feature: Create a product
     Then the response status code should be 403
 
   Scenario: Create a product
-    Given I am authenticated as "admin@test.com" with password "password123"
+    Given I am authenticated as an admin
     When I send a POST request to "/api/products" with body:
       """
       {"name": "Keyboard", "description": "Mechanical", "price": 89.99}
@@ -36,7 +36,7 @@ Feature: Create a product
     And the response matches the OpenAPI spec
 
   Scenario: Create a product with invalid data
-    Given I am authenticated as "admin@test.com" with password "password123"
+    Given I am authenticated as an admin
     When I send a POST request to "/api/products" with body:
       """
       {"name": "", "price": -1}

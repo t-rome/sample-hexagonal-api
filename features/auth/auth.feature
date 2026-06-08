@@ -1,7 +1,7 @@
 Feature: Authentication
 
   Background:
-    Given a user exists with email "user@test.com" and password "password123"
+    Given a user exists
 
   Scenario: Login returns a JWT token
     When I send a POST request to "/api/auth/login" with body:

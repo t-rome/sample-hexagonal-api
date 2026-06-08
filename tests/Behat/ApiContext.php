@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Behat;
 
 use App\Order\Infrastructure\Payment\FakePaymentGateway;
-use App\Order\Infrastructure\Persistence\OrderRecord;
 use App\Product\Infrastructure\Persistence\ProductRecord;
 use App\Tests\Shared\OpenApiValidator;
 use Behat\Behat\Context\Context;
@@ -47,8 +46,19 @@ class ApiContext implements Context
         FakePaymentGateway::willDecline();
     }
 
-    #[Given('I am authenticated as :email with password :password')]
-    public function iAmAuthenticatedAs(string $email, string $password): void
+    #[Given('I am authenticated as a user')]
+    public function iAmAuthenticatedAsUser(): void
+    {
+        $this->authenticate(DatabaseContext::USER_EMAIL, DatabaseContext::PASSWORD);
+    }
+
+    #[Given('I am authenticated as an admin')]
+    public function iAmAuthenticatedAsAdmin(): void
+    {
+        $this->authenticate(DatabaseContext::ADMIN_EMAIL, DatabaseContext::PASSWORD);
+    }
+
+    private function authenticate(string $email, string $password): void
     {
         $this->client->request(
             'POST',
@@ -69,20 +79,6 @@ class ApiContext implements Context
         $this->client->request('GET', $url, [], [], $this->authHeaders());
     }
 
-    #[When('I send a GET request to the product named :name')]
-    public function iSendAGetRequestToTheProductNamed(string $name): void
-    {
-        $id = $this->resolveProductId($name);
-        $this->client->request('GET', '/api/products/'.$id, [], [], $this->authHeaders());
-    }
-
-    #[When('I send a GET request to the order')]
-    public function iSendAGetRequestToTheOrder(): void
-    {
-        $id = $this->resolveOrderId();
-        $this->client->request('GET', '/api/orders/'.$id, [], [], $this->authHeaders());
-    }
-
     #[When('I send a POST request to :url with body:')]
     public function iSendAPostRequest(string $url, PyStringNode $body): void
     {
@@ -96,13 +92,33 @@ class ApiContext implements Context
         );
     }
 
-    #[When('I send a PUT request to the product named :name with body:')]
-    public function iSendAPutRequestToTheProductNamed(string $name, PyStringNode $body): void
+    #[When('I send a POST request to :url with items:')]
+    public function iSendAPostRequestWithItems(string $url, TableNode $table): void
     {
-        $id = $this->resolveProductId($name);
+        $items = [];
+        foreach ($table->getColumnsHash() as $row) {
+            $items[] = [
+                'productId' => $this->resolveProductId($row['product']),
+                'quantity' => (int) $row['quantity'],
+            ];
+        }
+
+        $this->client->request(
+            'POST',
+            $url,
+            [],
+            [],
+            array_merge(['CONTENT_TYPE' => 'application/json'], $this->authHeaders()),
+            json_encode(['items' => $items]),
+        );
+    }
+
+    #[When('I send a PUT request to :url with body:')]
+    public function iSendAPutRequest(string $url, PyStringNode $body): void
+    {
         $this->client->request(
             'PUT',
-            '/api/products/'.$id,
+            $url,
             [],
             [],
             array_merge(['CONTENT_TYPE' => 'application/json'], $this->authHeaders()),
@@ -116,39 +132,10 @@ class ApiContext implements Context
         $this->client->request('PATCH', $url, [], [], $this->authHeaders());
     }
 
-    #[When('I send a DELETE request to the product named :name')]
-    public function iSendADeleteRequestToTheProductNamed(string $name): void
+    #[When('I send a DELETE request to :url')]
+    public function iSendADeleteRequest(string $url): void
     {
-        $id = $this->resolveProductId($name);
-        $this->client->request('DELETE', '/api/products/'.$id, [], [], $this->authHeaders());
-    }
-
-    #[When('I place an order with the following items:')]
-    public function iPlaceAnOrderWithTheFollowingItems(TableNode $table): void
-    {
-        $items = [];
-        foreach ($table->getColumnsHash() as $row) {
-            $items[] = [
-                'productId' => $this->resolveProductId($row['product']),
-                'quantity' => (int) $row['quantity'],
-            ];
-        }
-
-        $this->client->request(
-            'POST',
-            '/api/orders',
-            [],
-            [],
-            array_merge(['CONTENT_TYPE' => 'application/json'], $this->authHeaders()),
-            json_encode(['items' => $items]),
-        );
-    }
-
-    #[When('I pay the order')]
-    public function iPayTheOrder(): void
-    {
-        $id = $this->resolveOrderId();
-        $this->client->request('PATCH', '/api/orders/'.$id.'/pay', [], [], $this->authHeaders());
+        $this->client->request('DELETE', $url, [], [], $this->authHeaders());
     }
 
     #[Then('the response status code should be :code')]
@@ -257,16 +244,5 @@ class ApiContext implements Context
         }
 
         return $product->id;
-    }
-
-    private function resolveOrderId(): int
-    {
-        $this->em->clear();
-        $order = $this->em->getRepository(OrderRecord::class)->findOneBy([]);
-        if (null === $order) {
-            throw new \RuntimeException('No order found in database');
-        }
-
-        return $order->id;
     }
 }

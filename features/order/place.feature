@@ -1,7 +1,7 @@
 Feature: Place an order
 
   Background:
-    Given a user exists with email "user@test.com" and password "password123"
+    Given a user exists
     And the following products exist:
       | name           | price   | description       | stock |
       | Laptop Pro     | 1499.99 | A powerful laptop | 10    |
@@ -15,8 +15,8 @@ Feature: Place an order
     Then the response status code should be 401
 
   Scenario: Place an order
-    Given I am authenticated as "user@test.com" with password "password123"
-    When I place an order with the following items:
+    Given I am authenticated as a user
+    When I send a POST request to "/api/orders" with items:
       | product        | quantity |
       | Laptop Pro     | 1        |
       | Wireless Mouse | 2        |
@@ -26,15 +26,15 @@ Feature: Place an order
     And the response matches the OpenAPI spec
 
   Scenario: Place an order with insufficient stock
-    Given I am authenticated as "user@test.com" with password "password123"
-    When I place an order with the following items:
+    Given I am authenticated as a user
+    When I send a POST request to "/api/orders" with items:
       | product        | quantity |
       | Laptop Pro     | 99       |
     Then the response status code should be 422
     And the response matches the OpenAPI spec
 
   Scenario: Place an order with unknown product
-    Given I am authenticated as "user@test.com" with password "password123"
+    Given I am authenticated as a user
     When I send a POST request to "/api/orders" with body:
       """
       {"items": [{"productId": 99999, "quantity": 1}]}
@@ -43,7 +43,7 @@ Feature: Place an order
     And the response matches the OpenAPI spec
 
   Scenario: Place an order with invalid data
-    Given I am authenticated as "user@test.com" with password "password123"
+    Given I am authenticated as a user
     When I send a POST request to "/api/orders" with body:
       """
       {"items": []}

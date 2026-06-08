@@ -1,7 +1,7 @@
 Feature: List and get products
 
   Background:
-    Given a user exists with email "user@test.com" and password "password123"
+    Given a user exists
     And the following products exist:
       | name           | price   | description       |
       | Laptop Pro     | 1499.99 | A powerful laptop |
@@ -14,7 +14,7 @@ Feature: List and get products
     And the response matches the OpenAPI spec
 
   Scenario: Get a specific product
-    When I send a GET request to the product named "Laptop Pro"
+    When I send a GET request to "/api/products/1"
     Then the response status code should be 200
     And the JSON response field "name" should be "Laptop Pro"
     And the response matches the OpenAPI spec

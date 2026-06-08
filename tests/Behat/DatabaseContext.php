@@ -21,6 +21,10 @@ use Symfony\Component\Uid\Uuid;
 
 class DatabaseContext implements Context
 {
+    public const USER_EMAIL = 'user@test.com';
+    public const ADMIN_EMAIL = 'admin@test.com';
+    public const PASSWORD = 'password123';
+
     private EntityManagerInterface $em;
     private UserPasswordHasherInterface $hasher;
 
@@ -38,19 +42,22 @@ class DatabaseContext implements Context
         $connection->executeStatement('SET session_replication_role = replica');
         new ORMExecutor($this->em, new ORMPurger($this->em))->execute([]);
         $connection->executeStatement('SET session_replication_role = DEFAULT');
+        $connection->executeQuery(
+            "SELECT setval(schemaname || '.' || sequencename, 1, false) FROM pg_sequences WHERE schemaname = 'public'",
+        );
         $this->em->clear();
     }
 
-    #[Given('a user exists with email :email and password :password')]
-    public function aUserExistsWithEmailAndPassword(string $email, string $password): void
+    #[Given('a user exists')]
+    public function aUserExists(): void
     {
-        $this->createUser($email, $password, ['ROLE_USER']);
+        $this->createUser(self::USER_EMAIL, self::PASSWORD, ['ROLE_USER']);
     }
 
-    #[Given('an admin exists with email :email and password :password')]
-    public function anAdminExistsWithEmailAndPassword(string $email, string $password): void
+    #[Given('an admin exists')]
+    public function anAdminExists(): void
     {
-        $this->createUser($email, $password, ['ROLE_ADMIN']);
+        $this->createUser(self::ADMIN_EMAIL, self::PASSWORD, ['ROLE_ADMIN']);
     }
 
     private function createUser(string $email, string $password, array $roles): void
