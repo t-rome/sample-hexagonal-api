@@ -31,8 +31,10 @@ Feature: Create a product
       """
     Then the response status code should be 201
     And the request body matches the OpenAPI spec
-    And the JSON response field "name" should be "Keyboard"
-    And the JSON response should have a field "id"
+    And the JSON response is:
+      """
+      {"id": 3, "name": "Keyboard", "description": "Mechanical", "price": 89.99, "stock": 0, "createdAt": "@any"}
+      """
     And the response matches the OpenAPI spec
 
   Scenario: Create a product with invalid data

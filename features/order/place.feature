@@ -22,7 +22,17 @@ Feature: Place an order
       | Wireless Mouse | 2        |
     Then the response status code should be 201
     And the request body matches the OpenAPI spec
-    And the JSON response field "status" should be "pending"
+    And the JSON response is:
+      """
+      {
+        "id": 1, "uuid": "@any", "userId": 1, "status": "pending", "totalPrice": 1559.97,
+        "items": [
+          {"productId": 1, "quantity": 1, "unitPrice": 1499.99, "totalPrice": 1499.99},
+          {"productId": 2, "quantity": 2, "unitPrice": 29.99, "totalPrice": 59.98}
+        ],
+        "createdAt": "@any"
+      }
+      """
     And the response matches the OpenAPI spec
 
   Scenario: Place an order with insufficient stock

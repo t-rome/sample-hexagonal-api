@@ -12,7 +12,14 @@ Feature: Pay an order
     And I am authenticated as a user
     When I send a PATCH request to "/api/orders/1/pay"
     Then the response status code should be 200
-    And the JSON response field "status" should be "confirmed"
+    And the JSON response is:
+      """
+      {
+        "id": 1, "uuid": "@any", "userId": 1, "status": "confirmed", "totalPrice": 1499.99,
+        "items": [{"productId": 1, "quantity": 1, "unitPrice": 1499.99, "totalPrice": 1499.99}],
+        "createdAt": "@any"
+      }
+      """
     And the response matches the OpenAPI spec
 
   Scenario: Paying a confirmed order returns conflict

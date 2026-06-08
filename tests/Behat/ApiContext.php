@@ -195,33 +195,42 @@ class ApiContext implements Context
         $this->openApiValidator->assertResponse($specPath, $method, $statusCode, $body);
     }
 
-    #[Then('the JSON response should have :count items')]
-    public function theJsonResponseShouldHaveItems(int $count): void
+    #[Then('the JSON response is:')]
+    public function theJsonResponseIs(PyStringNode $expected): void
     {
-        $actual = count($this->getResponseJson());
-        if ($actual !== $count) {
-            throw new \RuntimeException(\sprintf('Expected %d items but got %d', $count, $actual));
-        }
+        $actual = $this->getResponseJson();
+        $expected = json_decode($expected->getRaw(), true, 512, \JSON_THROW_ON_ERROR);
+        $this->assertJsonMatches($expected, $actual, 'response');
     }
 
-    #[Then('the JSON response field :field should be :value')]
-    public function theJsonResponseFieldShouldBe(string $field, string $value): void
+    private function assertJsonMatches(mixed $expected, mixed $actual, string $path): void
     {
-        $data = $this->getResponseJson();
-        if (!isset($data[$field])) {
-            throw new \RuntimeException(\sprintf('Field "%s" not found in response', $field));
+        if ('@any' === $expected) {
+            return;
         }
-        if ((string) $data[$field] !== $value) {
-            throw new \RuntimeException(\sprintf('Expected "%s" to be "%s" but got "%s"', $field, $value, $data[$field]));
-        }
-    }
 
-    #[Then('the JSON response should have a field :field')]
-    public function theJsonResponseShouldHaveAField(string $field): void
-    {
-        $data = $this->getResponseJson();
-        if (!array_key_exists($field, $data)) {
-            throw new \RuntimeException(\sprintf('Field "%s" not found in response', $field));
+        if (is_array($expected)) {
+            if (!is_array($actual)) {
+                throw new \RuntimeException("At {$path}: expected array but got ".gettype($actual));
+            }
+
+            $missing = array_diff(array_keys($expected), array_keys($actual));
+            $extra = array_diff(array_keys($actual), array_keys($expected));
+
+            if ($missing) {
+                throw new \RuntimeException("At {$path}: missing keys: ".implode(', ', $missing));
+            }
+            if ($extra) {
+                throw new \RuntimeException("At {$path}: unexpected keys: ".implode(', ', $extra));
+            }
+
+            foreach ($expected as $key => $value) {
+                $this->assertJsonMatches($value, $actual[$key], "{$path}.{$key}");
+            }
+        } else {
+            if ($actual !== $expected) {
+                throw new \RuntimeException(\sprintf('At %s: expected %s but got %s', $path, json_encode($expected), json_encode($actual)));
+            }
         }
     }
 

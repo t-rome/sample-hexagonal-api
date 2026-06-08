@@ -24,7 +24,10 @@ Feature: Update and delete a product
       """
     Then the response status code should be 200
     And the request body matches the OpenAPI spec
-    And the JSON response field "name" should be "Laptop Updated"
+    And the JSON response is:
+      """
+      {"id": 1, "name": "Laptop Updated", "description": null, "price": 1299.99, "stock": 0, "createdAt": "@any"}
+      """
     And the response matches the OpenAPI spec
 
   Scenario: Deleting a product requires admin role

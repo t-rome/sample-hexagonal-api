@@ -10,7 +10,10 @@ Feature: Authentication
       """
     Then the response status code should be 200
     And the request body matches the OpenAPI spec
-    And the JSON response should have a field "token"
+    And the JSON response is:
+      """
+      {"token": "@any"}
+      """
     And the response matches the OpenAPI spec
 
   Scenario: Login fails with wrong password
@@ -27,8 +30,10 @@ Feature: Authentication
       """
     Then the response status code should be 201
     And the request body matches the OpenAPI spec
-    And the JSON response field "email" should be "new@test.com"
-    And the JSON response should have a field "id"
+    And the JSON response is:
+      """
+      {"id": 2, "email": "new@test.com"}
+      """
     And the response matches the OpenAPI spec
 
   Scenario: Register fails with duplicate email
