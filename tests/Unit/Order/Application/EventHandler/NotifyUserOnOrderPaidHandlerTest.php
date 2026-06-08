@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Order\Application\EventHandler;
 
-use App\Order\Application\EventHandler\NotifyUserOnOrderPaid;
+use App\Order\Application\EventHandler\NotifyUserOnOrderPaidHandler;
 use App\Order\Domain\Event\OrderPaid;
 use App\Shared\Domain\NotificationServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
 
-class NotifyUserOnOrderPaidTest extends TestCase
+class NotifyUserOnOrderPaidHandlerTest extends TestCase
 {
     public function testNotifiesUserOnOrderPaid(): void
     {
@@ -19,7 +19,7 @@ class NotifyUserOnOrderPaidTest extends TestCase
             ->method('notify')
             ->with(42, $this->stringContains('confirmed'), $this->stringContains('29.97'));
 
-        $handler = new NotifyUserOnOrderPaid($notifier);
+        $handler = new NotifyUserOnOrderPaidHandler($notifier);
         $handler->handle(new OrderPaid(
             orderUuid: Uuid::v7(),
             userId: 42,

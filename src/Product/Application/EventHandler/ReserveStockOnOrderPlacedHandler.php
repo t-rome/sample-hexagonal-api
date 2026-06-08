@@ -23,7 +23,7 @@ use App\Product\Domain\Repository\ProductRepositoryInterface;
  * coupling is isolated in ReserveStockOnOrderPlacedSubscriber (Infrastructure),
  * which calls this handler — making this class independently unit-testable.
  */
-final readonly class ReserveStockOnOrderPlaced
+final readonly class ReserveStockOnOrderPlacedHandler
 {
     public function __construct(
         private ProductRepositoryInterface $productRepository,

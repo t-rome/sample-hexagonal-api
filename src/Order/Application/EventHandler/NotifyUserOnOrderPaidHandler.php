@@ -18,7 +18,7 @@ use App\Shared\Domain\NotificationServiceInterface;
  * coupling is isolated in NotifyUserOnOrderPaidSubscriber (Infrastructure),
  * which calls this handler — making this class independently unit-testable.
  */
-final readonly class NotifyUserOnOrderPaid
+final readonly class NotifyUserOnOrderPaidHandler
 {
     public function __construct(
         private NotificationServiceInterface $notificationService,

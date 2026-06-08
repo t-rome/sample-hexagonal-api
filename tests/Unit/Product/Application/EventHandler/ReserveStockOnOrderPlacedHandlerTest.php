@@ -6,7 +6,7 @@ namespace App\Tests\Unit\Product\Application\EventHandler;
 
 use App\Order\Domain\Event\OrderPlaced;
 use App\Order\Domain\Model\OrderItem;
-use App\Product\Application\EventHandler\ReserveStockOnOrderPlaced;
+use App\Product\Application\EventHandler\ReserveStockOnOrderPlacedHandler;
 use App\Product\Domain\Exception\InsufficientStockException;
 use App\Product\Domain\Model\Product;
 use App\Product\Domain\Repository\ProductRepositoryInterface;
@@ -14,15 +14,15 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\UuidV7;
 
-class ReserveStockOnOrderPlacedTest extends TestCase
+class ReserveStockOnOrderPlacedHandlerTest extends TestCase
 {
     private ProductRepositoryInterface&Stub $repository;
-    private ReserveStockOnOrderPlaced $handler;
+    private ReserveStockOnOrderPlacedHandler $handler;
 
     protected function setUp(): void
     {
         $this->repository = $this->createStub(ProductRepositoryInterface::class);
-        $this->handler = new ReserveStockOnOrderPlaced($this->repository);
+        $this->handler = new ReserveStockOnOrderPlacedHandler($this->repository);
     }
 
     public function testReservesStockForEachItem(): void
