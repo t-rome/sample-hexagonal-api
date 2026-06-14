@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Http\ExceptionMapper;
 
+use App\Shared\Domain\Exception\AccessDeniedException;
+use App\Shared\Domain\Exception\ValidationException;
 use App\Shared\Infrastructure\Http\ExceptionMapperInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException as SymfonyAccessDeniedException;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
@@ -16,7 +17,7 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  *
  * Handles two cases that are not domain-specific and therefore belong here in Shared:
  *
- * 1. AccessDeniedException — thrown by Symfony Security (e.g. via denyAccessUnlessGranted()
+ * 1. SymfonyAccessDeniedException — thrown by Symfony Security (e.g. via denyAccessUnlessGranted()
  *    or a Voter) when the authenticated user lacks the required role or permission.
  *    → 403 Forbidden
  *
@@ -30,7 +31,7 @@ final readonly class HttpExceptionMapper implements ExceptionMapperInterface
 {
     public function supports(\Throwable $exception): bool
     {
-        if ($exception instanceof AccessDeniedException) {
+        if ($exception instanceof SymfonyAccessDeniedException) {
             return true;
         }
 
@@ -40,8 +41,13 @@ final readonly class HttpExceptionMapper implements ExceptionMapperInterface
 
     public function toResponse(\Throwable $exception): JsonResponse
     {
-        if ($exception instanceof AccessDeniedException) {
-            return new JsonResponse(['error' => 'Access denied.'], Response::HTTP_FORBIDDEN);
+        if ($exception instanceof SymfonyAccessDeniedException) {
+            $domainException = new AccessDeniedException($exception);
+
+            return new JsonResponse(
+                ['code' => $domainException->errorCode(), 'error' => $domainException->getMessage()],
+                $domainException->statusCode(),
+            );
         }
 
         /** @var ValidationFailedException $validation */
@@ -50,13 +56,15 @@ final readonly class HttpExceptionMapper implements ExceptionMapperInterface
         foreach ($validation->getViolations() as $violation) {
             $violations[] = [
                 'field' => $violation->getPropertyPath(),
-                'message' => $violation->getMessage(),
+                'message' => (string) $violation->getMessage(),
             ];
         }
 
+        $domainException = new ValidationException($violations, $exception);
+
         return new JsonResponse(
-            ['error' => 'Validation failed', 'violations' => $violations],
-            Response::HTTP_UNPROCESSABLE_ENTITY,
+            ['code' => $domainException->errorCode(), 'error' => $domainException->getMessage(), 'violations' => $domainException->violations()],
+            $domainException->statusCode(),
         );
     }
 }

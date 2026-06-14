@@ -4,10 +4,17 @@ declare(strict_types=1);
 
 namespace App\Product\Domain\Exception;
 
-class ProductNotFoundException extends \DomainException
+use App\Shared\Domain\Exception\ApiBaseException;
+use App\Shared\Domain\Exception\ApiException;
+
+#[ApiException(
+    errorCode: 2001,
+    httpStatusCode: 404,
+    message: 'Product with id "{{ id }}" not found.')]
+final class ProductNotFoundException extends ApiBaseException
 {
-    public function __construct(int $id)
+    public function __construct(int $id, ?\Throwable $previous = null)
     {
-        parent::__construct(\sprintf('Product with id "%d" not found.', $id));
+        parent::__construct(['id' => (string) $id], $previous);
     }
 }

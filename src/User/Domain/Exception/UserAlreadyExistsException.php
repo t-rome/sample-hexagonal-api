@@ -4,10 +4,17 @@ declare(strict_types=1);
 
 namespace App\User\Domain\Exception;
 
-class UserAlreadyExistsException extends \DomainException
+use App\Shared\Domain\Exception\ApiBaseException;
+use App\Shared\Domain\Exception\ApiException;
+
+#[ApiException(
+    errorCode: 3001,
+    httpStatusCode: 409,
+    message: 'User with email "{{ email }}" already exists.')]
+final class UserAlreadyExistsException extends ApiBaseException
 {
-    public function __construct(string $email)
+    public function __construct(string $email, ?\Throwable $previous = null)
     {
-        parent::__construct(\sprintf('User with email "%s" already exists.', $email));
+        parent::__construct(['email' => $email], $previous);
     }
 }

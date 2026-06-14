@@ -120,7 +120,7 @@
   <text x="440" y="234" text-anchor="middle" font-size="8.5" fill="#a78bfa">OrderController  ·  ProductController  ·  AuthController  ·  HealthController</text>
   <text x="440" y="248" text-anchor="middle" font-size="8" fill="#7c3aed">DTOs: PlaceOrderDto · CreateProductDto · UpdateProductDto · RegisterUserDto</text>
   <text x="440" y="261" text-anchor="middle" font-size="7.5" fill="#4c1d95">@Route('/api/orders')  ·  @Route('/api/products')  ·  @Route('/api/auth')  ·  @Route('/health')</text>
-  <text x="440" y="272" text-anchor="middle" font-size="7" fill="#6d28d9">ExceptionMappers (Order · Product · User · Http) via ExceptionMapperInterface → ApiExceptionSubscriber → JSON</text>
+  <text x="440" y="272" text-anchor="middle" font-size="7" fill="#6d28d9">ExceptionMappers (Order · Product · User · Http) via ExceptionMapperInterface → ApiExceptionSubscriber → { code, error } JSON</text>
   <text x="440" y="285" text-anchor="middle" font-size="7" fill="#6d28d9">denyAccessUnlessGranted(ProductVoter::*) on product write operations</text>
 
   <!-- LEFT: Security -->
@@ -236,17 +236,20 @@
   <text x="1146" y="262" font-size="7" fill="#fde68a">Command: RegisterUser</text>
 
   <!-- Shared card -->
-  <rect x="1255" y="141" width="112" height="130" rx="6" fill="#181818" stroke="#475569" stroke-width="1.5"/>
+  <rect x="1255" y="141" width="112" height="145" rx="6" fill="#181818" stroke="#475569" stroke-width="1.5"/>
   <text x="1311" y="158" text-anchor="middle" font-size="10" font-weight="700" fill="#94a3b8">Shared</text>
   <text x="1263" y="171" font-size="7.5" fill="#94a3b8">Domain:</text>
   <text x="1266" y="181" font-size="7" fill="#cbd5e1">AggregateRoot · DomainEvent</text>
   <text x="1266" y="191" font-size="7" fill="#cbd5e1">DomainEventPublisherInterface</text>
   <text x="1266" y="201" font-size="7" fill="#cbd5e1">NotificationServiceInterface</text>
-  <text x="1263" y="213" font-size="7.5" fill="#475569">Application:</text>
-  <text x="1266" y="223" font-size="7" fill="#64748b">CommandBusInterface</text>
-  <text x="1266" y="233" font-size="7" fill="#64748b">QueryBusInterface</text>
-  <text x="1263" y="244" font-size="7.5" fill="#475569">Infrastructure:</text>
-  <text x="1266" y="255" font-size="6.5" fill="#64748b">Bus · EventPublisher · Fixtures</text>
+  <text x="1266" y="211" font-size="7" fill="#cbd5e1">ApiBaseException · ApiException</text>
+  <text x="1266" y="221" font-size="6.5" fill="#94a3b8">AccessDeniedException (4001)</text>
+  <text x="1266" y="230" font-size="6.5" fill="#94a3b8">ValidationException (4002)</text>
+  <text x="1263" y="242" font-size="7.5" fill="#475569">Application:</text>
+  <text x="1266" y="252" font-size="7" fill="#64748b">CommandBusInterface</text>
+  <text x="1266" y="262" font-size="7" fill="#64748b">QueryBusInterface</text>
+  <text x="1263" y="273" font-size="7.5" fill="#475569">Infrastructure:</text>
+  <text x="1266" y="283" font-size="6.5" fill="#64748b">Bus · EventPublisher · Fixtures</text>
 
   <!-- ── ② AGGREGATE ROOT & DOMAIN EVENTS ── -->
   <line x1="892" y1="283" x2="1372" y2="283" stroke="#1e293b" stroke-width="1"/>

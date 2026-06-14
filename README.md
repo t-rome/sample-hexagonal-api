@@ -234,13 +234,14 @@ Authentication uses **JWT Bearer tokens**. Obtain one via `/api/auth/login` and 
 All error responses follow a consistent JSON format:
 
 ```json
-{ "error": "Product with id \"42\" not found." }
+{ "code": 2001, "error": "Product with id \"42\" not found." }
 ```
 
 Validation failures include a `violations` array:
 
 ```json
 {
+  "code": 4002,
   "error": "Validation failed",
   "violations": [
     { "field": "name", "message": "This value should not be blank." }
@@ -248,7 +249,11 @@ Validation failures include a `violations` array:
 }
 ```
 
-The `ApiExceptionSubscriber` maps domain exceptions to HTTP status codes centrally — controllers contain no try/catch blocks. It delegates to a collection of `ExceptionMapperInterface` implementations, one per bounded context, so adding a new context requires no changes to the subscriber itself.
+Error code conventions: `1xxx` Order · `2xxx` Product · `3xxx` User · `4xxx` Shared (access control, validation).
+
+Every domain exception extends `ApiBaseException` and carries an `#[ApiException(errorCode, httpStatusCode, message)]` attribute. The base class reads this attribute via reflection at construction time, interpolates `{{ placeholder }}` tokens from the context array, and exposes `errorCode()` and `statusCode()` — so exception mappers never hard-code HTTP status codes.
+
+The `ApiExceptionSubscriber` maps exceptions to HTTP responses centrally — controllers contain no try/catch blocks. It delegates to a collection of `ExceptionMapperInterface` implementations, one per bounded context, so adding a new context requires no changes to the subscriber itself.
 
 ---
 
