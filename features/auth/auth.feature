@@ -42,6 +42,11 @@ Feature: Authentication
       {"email": "user@test.com", "password": "password123"}
       """
     Then the response status code should be 409
+    And the JSON response is:
+      """
+      {"code": 3001, "error": "User with email \"user@test.com\" already exists."}
+      """
+    And the response matches the OpenAPI spec
 
   Scenario: Register fails with invalid data
     When I send a POST request to "/api/auth/register" with body:

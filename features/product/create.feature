@@ -22,6 +22,11 @@ Feature: Create a product
       {"name": "Keyboard", "price": 89.99}
       """
     Then the response status code should be 403
+    And the JSON response is:
+      """
+      {"code": 4001, "error": "Access denied."}
+      """
+    And the response matches the OpenAPI spec
 
   Scenario: Create a product
     Given I am authenticated as an admin
@@ -44,4 +49,8 @@ Feature: Create a product
       {"name": "", "price": -1}
       """
     Then the response status code should be 422
+    And the JSON response is:
+      """
+      {"code": 4002, "error": "Validation failed", "violations": "@any"}
+      """
     And the response matches the OpenAPI spec

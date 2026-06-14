@@ -31,4 +31,8 @@ Feature: List and get products
   Scenario: Get a non-existent product
     When I send a GET request to "/api/products/99999"
     Then the response status code should be 404
+    And the JSON response is:
+      """
+      {"code": 2001, "error": "Product with id \"99999\" not found."}
+      """
     And the response matches the OpenAPI spec

@@ -8,6 +8,7 @@ use App\Shared\Domain\Exception\AccessDeniedException;
 use App\Shared\Domain\Exception\ValidationException;
 use App\Shared\Infrastructure\Http\ExceptionMapperInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException as SymfonyAccessDeniedException;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
@@ -17,8 +18,9 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  *
  * Handles two cases that are not domain-specific and therefore belong here in Shared:
  *
- * 1. SymfonyAccessDeniedException — thrown by Symfony Security (e.g. via denyAccessUnlessGranted()
- *    or a Voter) when the authenticated user lacks the required role or permission.
+ * 1. Access denied — denyAccessUnlessGranted() throws SymfonyAccessDeniedException. Symfony
+ *    Security's ExceptionListener then wraps it in AccessDeniedHttpException before the
+ *    kernel.exception event is dispatched, so both types are matched here.
  *    → 403 Forbidden
  *
  * 2. Validation failure — Symfony wraps a ValidationFailedException inside an
@@ -31,7 +33,7 @@ final readonly class HttpExceptionMapper implements ExceptionMapperInterface
 {
     public function supports(\Throwable $exception): bool
     {
-        if ($exception instanceof SymfonyAccessDeniedException) {
+        if ($exception instanceof SymfonyAccessDeniedException || $exception instanceof AccessDeniedHttpException) {
             return true;
         }
 
@@ -41,7 +43,7 @@ final readonly class HttpExceptionMapper implements ExceptionMapperInterface
 
     public function toResponse(\Throwable $exception): JsonResponse
     {
-        if ($exception instanceof SymfonyAccessDeniedException) {
+        if ($exception instanceof SymfonyAccessDeniedException || $exception instanceof AccessDeniedHttpException) {
             $domainException = new AccessDeniedException($exception);
 
             return new JsonResponse(

@@ -43,4 +43,8 @@ Feature: List and get orders
     Given I am authenticated as a user
     When I send a GET request to "/api/orders/99999"
     Then the response status code should be 404
+    And the JSON response is:
+      """
+      {"code": 1001, "error": "Order with id \"99999\" not found."}
+      """
     And the response matches the OpenAPI spec
