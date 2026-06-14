@@ -16,10 +16,10 @@ This project serves as a concrete, runnable example of how to combine:
 
 - [Architecture](#architecture)
 - [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Composer Commands](#composer-commands)
 - [API Documentation](#api-documentation)
 - [Testing Strategy](#testing-strategy)
+- [Getting Started](#getting-started)
+- [Composer Commands](#composer-commands)
 - [Tech Stack](#tech-stack)
 
 ---
@@ -86,6 +86,120 @@ Access control uses Symfony's role hierarchy and a dedicated voter:
 `ROLE_ADMIN` implies `ROLE_USER` via Symfony's role hierarchy — admins can also place and pay orders.
 
 Product write operations are enforced by `ProductVoter` (`src/Product/Infrastructure/Security/`), a Symfony voter that checks `ROLE_ADMIN` on the token and returns `403 Access denied.` for authenticated users with insufficient privileges. See the <a href="docs/diagrams/security.html" target="_blank" rel="noopener noreferrer">Security & Authorization diagram</a> for a full access matrix and flow.
+
+---
+
+## Project Structure
+
+```
+src/                    # Application source — bounded contexts + Shared
+tests/
+├── Unit/               # PHPUnit unit tests (isolated, no DB or HTTP)
+└── Behat/              # Behat step definitions and context classes
+features/               # Gherkin feature files (BDD acceptance scenarios)
+docs/
+├── openapi.yaml        # Generated OpenAPI spec (source of truth)
+└── diagrams/           # Architecture, testing, and security diagrams
+api-contract/           # OpenAPI source fragments (paths + schemas)
+config/                 # Symfony configuration
+```
+
+---
+
+## API Documentation
+
+The full API is described in [`docs/openapi.yaml`](docs/openapi.yaml).
+
+### Endpoints
+
+**Auth** — `/api/auth`
+- `POST /api/auth/register` — Register a new user
+- `POST /api/auth/login` — Obtain a JWT token
+- `POST /api/auth/logout` — Invalidate the current JWT token
+
+**Products** — `/api/products`
+- `GET /api/products` — List products _(public)_
+- `GET /api/products/{id}` — Get a product _(public)_
+- `POST /api/products` — Create a product `[ROLE_ADMIN]`
+- `PUT /api/products/{id}` — Update a product `[ROLE_ADMIN]`
+- `DELETE /api/products/{id}` — Delete a product `[ROLE_ADMIN]`
+
+**Orders** — `/api/orders`
+- `GET /api/orders` — List orders _(public)_
+- `GET /api/orders/{id}` — Get an order _(public)_
+- `POST /api/orders` — Place an order `[ROLE_USER]`
+- `PATCH /api/orders/{id}/pay` — Pay an order (transitions `pending → confirmed`) `[ROLE_USER]`
+
+> **Pluggable ports on `/pay`** — The handler depends on interfaces, not concrete implementations:
+> - `PaymentGatewayInterface` — currently wired to `FakePaymentGateway` (always succeeds). Swap for a real adapter (`StripePaymentGateway`, `AdyenPaymentGateway`, …) in `config/services.yaml`.
+> - `DomainEventPublisherInterface` — currently wired to `SymfonyDomainEventPublisher`. Swap for an async adapter (Symfony Messenger, RabbitMQ) without touching any handler.
+> - `NotificationServiceInterface` — on success, `NotifyUserOnOrderPaid` fires and calls this port. Currently wired to `FakeNotificationService` (logs via Monolog). Swap for email, SMS, or push adapters the same way.
+>
+> **Design note:** Payment is modelled here as a port inside the Order bounded context, which is appropriate for a simple flow. In a system with richer payment concerns — refunds, partial payments, retries, reconciliation, or PCI scope isolation — Payment would deserve its own bounded context with a `PaymentIntent` aggregate, its own status lifecycle, and its own repository.
+
+**System**
+- `GET /health` — Health check (public)
+
+Authentication uses **JWT Bearer tokens**. Obtain one via `/api/auth/login` and pass it as `Authorization: Bearer <token>` on protected endpoints.
+
+### Error Responses
+
+All error responses follow a consistent JSON format:
+
+```json
+{ "code": 2001, "error": "Product with id \"42\" not found." }
+```
+
+Validation failures include a `violations` array:
+
+```json
+{
+  "code": 4002,
+  "error": "Validation failed",
+  "violations": [
+    { "field": "name", "message": "This value should not be blank." }
+  ]
+}
+```
+
+Error code conventions: `1xxx` Order · `2xxx` Product · `3xxx` User · `4xxx` Shared (access control, validation).
+
+Every domain exception extends `ApiBaseException` and carries an `#[ApiException(errorCode, httpStatusCode, message)]` attribute. The base class reads this attribute via reflection at construction time, interpolates `{{ placeholder }}` tokens from the context array, and exposes `errorCode()` and `statusCode()` — so exception mappers never hard-code HTTP status codes.
+
+The `ApiExceptionSubscriber` maps exceptions to HTTP responses centrally — controllers contain no try/catch blocks. It delegates to two `ExceptionMapperInterface` implementations: `ApiBaseExceptionMapper` handles every domain exception that extends `ApiBaseException` (status code and error code come from the `#[ApiException]` attribute — no mapper changes needed when adding a new exception), and `HttpExceptionMapper` handles Symfony framework exceptions (`AccessDeniedException`, `ValidationFailedException`) that cannot extend `ApiBaseException`.
+
+---
+
+## Testing Strategy
+
+See the <a href="https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/testing.html" target="_blank" rel="noopener noreferrer">**Testing Strategy diagram**</a> for a visual overview of the quality gates.
+
+The project uses three complementary test types to cover different concerns:
+
+### Unit Tests (`tests/Unit/`)
+
+Test individual classes in isolation — no database, no HTTP, no framework. Focus on:
+- Domain model invariants and business rules
+- Application command/query handler logic
+- Event handler behaviour
+
+Run with: `composer app:test:unit`
+
+### BDD Acceptance Tests (`features/`, `tests/Behat/`)
+
+Written in Gherkin and executed by Behat. Make full HTTP round-trips against a real test database and describe behaviour from an outside-in perspective using natural language scenarios. Each scenario that returns a JSON body includes an `And the response matches the OpenAPI spec` step — meaning **every acceptance test simultaneously validates behaviour and verifies that the concrete endpoint implementation conforms to the API contract**.
+
+Covers: authentication flows, product CRUD with `ROLE_ADMIN` enforcement (401, 403), order placement and payment, and all error cases (401, 403, 404, 409, 422).
+
+Run with: `composer app:behat`
+
+### QA Pipeline
+
+```
+app:openapi:check-sync  →  app:validate:openapi  →  app:cs:check  →  app:analyse  →  app:test  →  app:behat
+```
+
+Running `composer app:qa` executes all six gates in order. The pipeline fails fast — a stale or invalid contract stops the run before any code analysis or tests are executed.
 
 ---
 
@@ -190,103 +304,6 @@ All project workflows are wired up as Composer scripts so there is a single, con
 | `composer app:openapi:build` | Merge `api-contract/` fragments into `docs/openapi.yaml` |
 | `composer app:openapi:check-sync` | Verify `docs/openapi.yaml` is in sync with `api-contract/` |
 | `composer app:validate:openapi` | Validate `docs/openapi.yaml` against the OpenAPI spec |
-
----
-
-## API Documentation
-
-The full API is described in [`docs/openapi.yaml`](docs/openapi.yaml).
-
-### Endpoints
-
-**Auth** — `/api/auth`
-- `POST /api/auth/register` — Register a new user
-- `POST /api/auth/login` — Obtain a JWT token
-- `POST /api/auth/logout` — Invalidate the current JWT token
-
-**Products** — `/api/products`
-- `GET /api/products` — List products _(public)_
-- `GET /api/products/{id}` — Get a product _(public)_
-- `POST /api/products` — Create a product `[ROLE_ADMIN]`
-- `PUT /api/products/{id}` — Update a product `[ROLE_ADMIN]`
-- `DELETE /api/products/{id}` — Delete a product `[ROLE_ADMIN]`
-
-**Orders** — `/api/orders`
-- `GET /api/orders` — List orders _(public)_
-- `GET /api/orders/{id}` — Get an order _(public)_
-- `POST /api/orders` — Place an order `[ROLE_USER]`
-- `PATCH /api/orders/{id}/pay` — Pay an order (transitions `pending → confirmed`) `[ROLE_USER]`
-
-> **Pluggable ports on `/pay`** — The handler depends on interfaces, not concrete implementations:
-> - `PaymentGatewayInterface` — currently wired to `FakePaymentGateway` (always succeeds). Swap for a real adapter (`StripePaymentGateway`, `AdyenPaymentGateway`, …) in `config/services.yaml`.
-> - `DomainEventPublisherInterface` — currently wired to `SymfonyDomainEventPublisher`. Swap for an async adapter (Symfony Messenger, RabbitMQ) without touching any handler.
-> - `NotificationServiceInterface` — on success, `NotifyUserOnOrderPaid` fires and calls this port. Currently wired to `FakeNotificationService` (logs via Monolog). Swap for email, SMS, or push adapters the same way.
->
-> **Design note:** Payment is modelled here as a port inside the Order bounded context, which is appropriate for a simple flow. In a system with richer payment concerns — refunds, partial payments, retries, reconciliation, or PCI scope isolation — Payment would deserve its own bounded context with a `PaymentIntent` aggregate, its own status lifecycle, and its own repository.
-
-**System**
-- `GET /health` — Health check (public)
-
-Authentication uses **JWT Bearer tokens**. Obtain one via `/api/auth/login` and pass it as `Authorization: Bearer <token>` on protected endpoints.
-
-### Error Responses
-
-All error responses follow a consistent JSON format:
-
-```json
-{ "code": 2001, "error": "Product with id \"42\" not found." }
-```
-
-Validation failures include a `violations` array:
-
-```json
-{
-  "code": 4002,
-  "error": "Validation failed",
-  "violations": [
-    { "field": "name", "message": "This value should not be blank." }
-  ]
-}
-```
-
-Error code conventions: `1xxx` Order · `2xxx` Product · `3xxx` User · `4xxx` Shared (access control, validation).
-
-Every domain exception extends `ApiBaseException` and carries an `#[ApiException(errorCode, httpStatusCode, message)]` attribute. The base class reads this attribute via reflection at construction time, interpolates `{{ placeholder }}` tokens from the context array, and exposes `errorCode()` and `statusCode()` — so exception mappers never hard-code HTTP status codes.
-
-The `ApiExceptionSubscriber` maps exceptions to HTTP responses centrally — controllers contain no try/catch blocks. It delegates to two `ExceptionMapperInterface` implementations: `ApiBaseExceptionMapper` handles every domain exception that extends `ApiBaseException` (status code and error code come from the `#[ApiException]` attribute — no mapper changes needed when adding a new exception), and `HttpExceptionMapper` handles Symfony framework exceptions (`AccessDeniedException`, `ValidationFailedException`) that cannot extend `ApiBaseException`.
-
----
-
-## Testing Strategy
-
-See the <a href="https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/testing.html" target="_blank" rel="noopener noreferrer">**Testing Strategy diagram**</a> for a visual overview of the quality gates.
-
-The project uses three complementary test types to cover different concerns:
-
-### Unit Tests (`tests/Unit/`)
-
-Test individual classes in isolation — no database, no HTTP, no framework. Focus on:
-- Domain model invariants and business rules
-- Application command/query handler logic
-- Event handler behaviour
-
-Run with: `composer app:test:unit`
-
-### BDD Acceptance Tests (`features/`, `tests/Behat/`)
-
-Written in Gherkin and executed by Behat. Make full HTTP round-trips against a real test database and describe behaviour from an outside-in perspective using natural language scenarios. Each scenario that returns a JSON body includes an `And the response matches the OpenAPI spec` step — meaning **every acceptance test simultaneously validates behaviour and verifies that the concrete endpoint implementation conforms to the API contract**.
-
-Covers: authentication flows, product CRUD with `ROLE_ADMIN` enforcement (401, 403), order placement and payment, and all error cases (401, 403, 404, 409, 422).
-
-Run with: `composer app:behat`
-
-### QA Pipeline
-
-```
-app:openapi:check-sync  →  app:validate:openapi  →  app:cs:check  →  app:analyse  →  app:test  →  app:behat
-```
-
-Running `composer app:qa` executes all six gates in order. The pipeline fails fast — a stale or invalid contract stops the run before any code analysis or tests are executed.
 
 ---
 
