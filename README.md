@@ -253,7 +253,7 @@ Error code conventions: `1xxx` Order · `2xxx` Product · `3xxx` User · `4xxx` 
 
 Every domain exception extends `ApiBaseException` and carries an `#[ApiException(errorCode, httpStatusCode, message)]` attribute. The base class reads this attribute via reflection at construction time, interpolates `{{ placeholder }}` tokens from the context array, and exposes `errorCode()` and `statusCode()` — so exception mappers never hard-code HTTP status codes.
 
-The `ApiExceptionSubscriber` maps exceptions to HTTP responses centrally — controllers contain no try/catch blocks. It delegates to a collection of `ExceptionMapperInterface` implementations, one per bounded context, so adding a new context requires no changes to the subscriber itself.
+The `ApiExceptionSubscriber` maps exceptions to HTTP responses centrally — controllers contain no try/catch blocks. It delegates to two `ExceptionMapperInterface` implementations: `ApiBaseExceptionMapper` handles every domain exception that extends `ApiBaseException` (status code and error code come from the `#[ApiException]` attribute — no mapper changes needed when adding a new exception), and `HttpExceptionMapper` handles Symfony framework exceptions (`AccessDeniedException`, `ValidationFailedException`) that cannot extend `ApiBaseException`.
 
 ---
 
