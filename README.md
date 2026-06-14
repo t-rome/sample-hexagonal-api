@@ -17,6 +17,7 @@ This project serves as a concrete, runnable example of how to combine:
 - [Architecture](#architecture)
 - [Project Structure](#project-structure)
 - [API Documentation](#api-documentation)
+- [Error Responses](#error-responses)
 - [Testing Strategy](#testing-strategy)
 - [Getting Started](#getting-started)
 - [Composer Commands](#composer-commands)
@@ -142,7 +143,9 @@ The full API is described in [`docs/openapi.yaml`](docs/openapi.yaml).
 
 Authentication uses **JWT Bearer tokens**. Obtain one via `/api/auth/login` and pass it as `Authorization: Bearer <token>` on protected endpoints.
 
-### Error Responses
+---
+
+## Error Responses
 
 All error responses follow a consistent JSON format:
 
