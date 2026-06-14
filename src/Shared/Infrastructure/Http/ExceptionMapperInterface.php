@@ -8,11 +8,17 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
- * Strategy interface for mapping a domain or framework exception to a JSON HTTP response.
+ * Strategy interface for mapping an exception to a JSON HTTP response.
  *
- * Each bounded context provides its own mapper (e.g. OrderExceptionMapper,
- * ProductExceptionMapper) that handles the exceptions it owns. This keeps error
- * handling modular — a new module adds its own mapper without touching existing ones.
+ * Two implementations are registered:
+ *
+ *   ApiBaseExceptionMapper — handles every exception that extends ApiBaseException.
+ *                            Status codes and error codes are read from the exception
+ *                            itself via statusCode() / errorCode(), so no mapper changes
+ *                            are needed when a new domain exception is added.
+ *
+ *   HttpExceptionMapper    — handles Symfony framework exceptions (AccessDeniedException,
+ *                            ValidationFailedException) that cannot extend ApiBaseException.
  *
  * The #[AutoconfigureTag] attribute automatically tags every implementing class with
  * 'app.exception_mapper'. ApiExceptionSubscriber receives all tagged mappers via a

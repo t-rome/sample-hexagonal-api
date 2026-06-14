@@ -120,7 +120,7 @@
   <text x="440" y="234" text-anchor="middle" font-size="8.5" fill="#a78bfa">OrderController  ·  ProductController  ·  AuthController  ·  HealthController</text>
   <text x="440" y="248" text-anchor="middle" font-size="8" fill="#7c3aed">DTOs: PlaceOrderDto · CreateProductDto · UpdateProductDto · RegisterUserDto</text>
   <text x="440" y="261" text-anchor="middle" font-size="7.5" fill="#4c1d95">@Route('/api/orders')  ·  @Route('/api/products')  ·  @Route('/api/auth')  ·  @Route('/health')</text>
-  <text x="440" y="272" text-anchor="middle" font-size="7" fill="#6d28d9">ExceptionMappers (Order · Product · User · Http) via ExceptionMapperInterface → ApiExceptionSubscriber → { code, error } JSON</text>
+  <text x="440" y="272" text-anchor="middle" font-size="7" fill="#6d28d9">ApiBaseExceptionMapper · HttpExceptionMapper via ExceptionMapperInterface → ApiExceptionSubscriber → { code, error } JSON</text>
   <text x="440" y="285" text-anchor="middle" font-size="7" fill="#6d28d9">denyAccessUnlessGranted(ProductVoter::*) on product write operations</text>
 
   <!-- LEFT: Security -->
