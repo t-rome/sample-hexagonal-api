@@ -5,8 +5,9 @@ A reference implementation of a modern PHP REST API built with **Symfony 8**, de
 This project serves as a concrete, runnable example of how to combine:
 
 - **API-first development** — the contract is defined before the code
-- **Hexagonal Architecture** (Ports & Adapters) — strict separation between domain logic and infrastructure
+- **Hexagonal Architecture** (Ports & Adapters) — strict separation between domain logic, application and infrastructure
 - **Domain-Driven Design** — bounded contexts with rich domain models and domain events
+- **CQRS** — commands mutate state, queries only read it; each use case is a single-responsibility handler dispatched through a bus port
 - **Event-driven development** — domain events are raised on aggregates and published via a `DomainEventPublisherInterface` port. Application event handlers are pure PHP classes; thin Infrastructure subscribers handle the Symfony wiring, keeping framework concerns out of the Application layer
 - **Layered testing strategy** — unit, functional, and BDD acceptance tests
 
@@ -35,7 +36,7 @@ This project serves as a concrete, runnable example of how to combine:
 
 ### Hexagonal Architecture
 
-The application is divided into three **bounded contexts**, each following the same layered structure:
+The application is divided into three **bounded contexts**(Order, Product, User), each following the same layered structure:
 
 ```
 src/
@@ -62,9 +63,13 @@ src/
 - The **Application layer** depends only on domain interfaces (ports), never on concrete infrastructure. Cross-cutting concerns such as event publishing (`DomainEventPublisherInterface`) and message dispatching (`CommandBusInterface`, `QueryBusInterface`) are expressed as ports defined in the Application or Domain layer.
 - **Infrastructure** implements those interfaces (adapters) and is the only layer allowed to import Symfony, Doctrine, or third-party libraries. Symfony's `EventSubscriberInterface` lives in Infrastructure event subscribers, not in Application event handlers.
 
+### CQRS
+
+Every use case is either a **Command** (mutates state, returns void) or a **Query** (reads state, never mutates). Commands such as `PlaceOrderCommand`, `PayOrderCommand`, and `RegisterUserCommand` are dispatched through `CommandBusInterface`; queries such as `GetOrderQuery` and `ListProductsQuery` are dispatched through `QueryBusInterface`. Both interfaces are ports defined in `Shared/Application/` and wired to Symfony Messenger in Infrastructure, so the transport (sync, async queue) can be swapped without touching any handler. Handlers live in `Application/Command/` and `Application/Query/` within each bounded context — each class has a single responsibility, making them straightforward to test in isolation.
+
 ### Domain Events
 
-Domain events decouple bounded contexts. When an order is placed, an `OrderPlaced` event is raised on the aggregate root. The command handler releases accumulated events and publishes them through `DomainEventPublisherInterface` — a port whose Symfony adapter forwards events to the dispatcher. Application event handlers (`NotifyUserOnOrderPaidHandler`, `ReserveStockOnOrderPlacedHandler`) are plain PHP classes with no framework imports; thin Infrastructure subscribers (`NotifyUserOnOrderPaidSubscriber`, `ReserveStockOnOrderPlacedSubscriber`) implement Symfony's `EventSubscriberInterface` and delegate to them. Other contexts react without being directly coupled to Order internals.
+Domain events decouple bounded contexts without coupling them through shared services. Aggregates (e.g. `Order`) extend `AggregateRoot`, which provides `recordEvent()` and `releaseEvents()` — events accumulate in memory during a command and are flushed only after the aggregate is persisted. The command handler then publishes them through `DomainEventPublisherInterface` — a port whose Symfony adapter forwards events to the dispatcher. Application event handlers (`NotifyUserOnOrderPaidHandler`, `ReserveStockOnOrderPlacedHandler`) are plain PHP classes with no framework imports; thin Infrastructure subscribers (`NotifyUserOnOrderPaidSubscriber`, `ReserveStockOnOrderPlacedSubscriber`) implement Symfony's `EventSubscriberInterface` and delegate to them. Other contexts react without being directly coupled to Order internals.
 
 ### API-First Approach
 
