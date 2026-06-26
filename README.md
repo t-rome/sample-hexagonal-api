@@ -8,7 +8,7 @@ This project serves as a concrete, runnable example of how to combine:
 - **Hexagonal Architecture** (Ports & Adapters) — strict separation between domain logic, application and infrastructure
 - **Domain-Driven Design** — bounded contexts with rich domain models and domain events
 - **CQRS** — commands mutate state, queries only read it; each use case is a single-responsibility handler dispatched through a bus port
-- **Event-driven development** — domain events are raised on aggregates and published via a `DomainEventPublisherInterface` port. Application event handlers are pure PHP classes; thin Infrastructure subscribers handle the Symfony wiring, keeping framework concerns out of the Application layer
+- **Event-driven development** — domain events are raised on aggregates and published via a `DomainEventPublisherInterface` port. Application event handlers (`NotifyUserOnOrderPaidHandler`, `ReserveStockOnOrderPlacedHandler`) are pure PHP classes with no framework imports. They are triggered by thin Infrastructure Messenger handlers that receive a `DomainEventMessage` from the queue. The Messenger transport (Doctrine queue, AMQP, Redis, sync) is a single config value — no business logic changes needed to switch.
 - **Layered testing strategy** — unit, functional, and BDD acceptance tests
 
 ---
@@ -30,9 +30,9 @@ This project serves as a concrete, runnable example of how to combine:
 
 ### Visual Diagrams
 
-- <a href="https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/architecture.html" target="_blank" rel="noopener noreferrer">**Hexagonal Architecture Diagram**</a> — Domain boundaries, application layer (commands/queries), and infrastructure adapters across all three bounded contexts.
-- <a href="https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/testing.html" target="_blank" rel="noopener noreferrer">**Testing Strategy**</a> — Quality gates, test pyramid, and the QA pipeline from static analysis through BDD acceptance tests.
-- <a href="https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/security.html" target="_blank" rel="noopener noreferrer">**Security & Authorization**</a> — Role hierarchy, access control matrix, ProductVoter architecture, and JWT authentication flow.
+- [**Hexagonal Architecture Diagram**](docs/diagrams/architecture.html) — Domain boundaries, application layer (commands/queries), infrastructure adapters, and the dual sync/async event publishing approach.
+- [**Testing Strategy**](docs/diagrams/testing.html) — Quality gates, test pyramid, and the QA pipeline from static analysis through BDD acceptance tests.
+- [**Security & Authorization**](docs/diagrams/security.html) — Role hierarchy, access control matrix, ProductVoter architecture, and JWT authentication flow.
 
 ### Hexagonal Architecture
 
@@ -67,9 +67,39 @@ src/
 
 Every use case is either a **Command** (mutates state, returns void) or a **Query** (reads state, never mutates). Commands such as `PlaceOrderCommand`, `PayOrderCommand`, and `RegisterUserCommand` are dispatched through `CommandBusInterface`; queries such as `GetOrderQuery` and `ListProductsQuery` are dispatched through `QueryBusInterface`. Both interfaces are ports defined in `Shared/Application/` and wired to Symfony Messenger in Infrastructure, so the transport (sync, async queue) can be swapped without touching any handler. Handlers live in `Application/Command/` and `Application/Query/` within each bounded context — each class has a single responsibility, making them straightforward to test in isolation.
 
-### Domain Events
+### Domain Events and Async Messaging
 
-Domain events decouple bounded contexts without coupling them through shared services. Aggregates (e.g. `Order`) extend `AggregateRoot`, which provides `recordEvent()` and `releaseEvents()` — events accumulate in memory during a command and are flushed only after the aggregate is persisted. The command handler then publishes them through `DomainEventPublisherInterface` — a port whose Symfony adapter forwards events to the dispatcher. Application event handlers (`NotifyUserOnOrderPaidHandler`, `ReserveStockOnOrderPlacedHandler`) are plain PHP classes with no framework imports; thin Infrastructure subscribers (`NotifyUserOnOrderPaidSubscriber`, `ReserveStockOnOrderPlacedSubscriber`) implement Symfony's `EventSubscriberInterface` and delegate to them. Other contexts react without being directly coupled to Order internals.
+Domain events decouple bounded contexts without coupling them through shared services. Aggregates (e.g. `Order`) extend `AggregateRoot`, which provides `recordEvent()` and `releaseEvents()` — events accumulate in memory during a command and are flushed only after the aggregate is persisted. The command handler then publishes them through `DomainEventPublisherInterface`.
+
+Both a synchronous and an asynchronous adapter exist in the codebase. The active one is selected by a single line in `config/services.yaml` — zero changes in Domain or Application layer either way.
+
+**ASYNC adapter — `MessengerDomainEventPublisher` (currently active)**
+
+```
+CommandHandler → DomainEventPublisherInterface::publish(event)
+  → MessengerDomainEventPublisher
+    → bus->dispatch(DomainEventMessage(event))
+      → RabbitMQ (AMQP · domain_events queue)
+        → worker: php bin/console messenger:consume domain_events
+          → ReserveStockOnOrderPlacedMessengerHandler  →  ReserveStockOnOrderPlacedHandler  ← pure PHP
+          → NotifyUserOnOrderPaidMessengerHandler       →  NotifyUserOnOrderPaidHandler       ← pure PHP
+```
+
+The HTTP response is returned immediately; handlers run in the background. The transport (RabbitMQ, Redis, Doctrine, `sync://`) is a single env variable — no PHP changes needed to switch. The test environment overrides to `sync://` so handlers run inline without a broker.
+
+**SYNC adapter — `SymfonyDomainEventPublisher` (available, swap in services.yaml)**
+
+```
+CommandHandler → DomainEventPublisherInterface::publish(event)
+  → SymfonyDomainEventPublisher
+    → Symfony EventDispatcher::dispatch(event)
+      → ReserveStockOnOrderPlacedSubscriber  →  ReserveStockOnOrderPlacedHandler  ← pure PHP
+      → NotifyUserOnOrderPaidSubscriber       →  NotifyUserOnOrderPaidHandler       ← pure PHP
+```
+
+Handlers run within the same request and DB transaction. If a handler throws, the whole request fails — which can be desirable for strong consistency (e.g. stock reservation). No broker or worker needed.
+
+**Port swap — Ports & Adapters in action:** the application handlers (`NotifyUserOnOrderPaidHandler`, `ReserveStockOnOrderPlacedHandler`) are identical in both approaches. See `config/services.yaml` for the swap comment and `src/Shared/Infrastructure/EventPublisher/` for both adapters with detailed trade-off documentation.
 
 ### API-First Approach
 
@@ -91,7 +121,7 @@ Access control uses Symfony's role hierarchy and a dedicated voter:
 
 `ROLE_ADMIN` implies `ROLE_USER` via Symfony's role hierarchy — admins can also place and pay orders.
 
-Product write operations are enforced by `ProductVoter` (`src/Product/Infrastructure/Security/`), a Symfony voter that checks `ROLE_ADMIN` on the token and returns `403 Access denied.` for authenticated users with insufficient privileges. See the <a href="docs/diagrams/security.html" target="_blank" rel="noopener noreferrer">Security & Authorization diagram</a> for a full access matrix and flow.
+Product write operations are enforced by `ProductVoter` (`src/Product/Infrastructure/Security/`), a Symfony voter that checks `ROLE_ADMIN` on the token and returns `403 Access denied.` for authenticated users with insufficient privileges. See the [Security & Authorization diagram](docs/diagrams/security.html) for a full access matrix and flow.
 
 ---
 
@@ -138,7 +168,7 @@ The full API is described in [`docs/openapi.yaml`](docs/openapi.yaml).
 
 > **Pluggable ports on `/pay`** — The handler depends on interfaces, not concrete implementations:
 > - `PaymentGatewayInterface` — currently wired to `FakePaymentGateway` (always succeeds). Swap for a real adapter (`StripePaymentGateway`, `AdyenPaymentGateway`, …) in `config/services.yaml`.
-> - `DomainEventPublisherInterface` — currently wired to `SymfonyDomainEventPublisher`. Swap for an async adapter (Symfony Messenger, RabbitMQ) without touching any handler.
+> - `DomainEventPublisherInterface` — wired to `MessengerDomainEventPublisher`, which dispatches domain events to RabbitMQ via AMQP. The transport is configured in `config/packages/messenger.yaml`; changing `MESSENGER_TRANSPORT_DSN` in `.env` switches to a different broker (Redis, Doctrine, sync) without touching any handler.
 > - `NotificationServiceInterface` — on success, `NotifyUserOnOrderPaid` fires and calls this port. Currently wired to `FakeNotificationService` (logs via Monolog). Swap for email, SMS, or push adapters the same way.
 >
 > **Design note:** Payment is modelled here as a port inside the Order bounded context, which is appropriate for a simple flow. In a system with richer payment concerns — refunds, partial payments, retries, reconciliation, or PCI scope isolation — Payment would deserve its own bounded context with a `PaymentIntent` aggregate, its own status lifecycle, and its own repository.
@@ -180,7 +210,7 @@ The `ApiExceptionSubscriber` maps exceptions to HTTP responses centrally — con
 
 ## Testing Strategy
 
-See the <a href="https://htmlpreview.github.io/?https://github.com/t-rome/sample-hexagonal-api/blob/main/docs/diagrams/testing.html" target="_blank" rel="noopener noreferrer">**Testing Strategy diagram**</a> for a visual overview of the quality gates.
+See the [**Testing Strategy diagram**](docs/diagrams/testing.html) for a visual overview of the quality gates.
 
 The project uses three complementary test types to cover different concerns:
 
@@ -230,6 +260,7 @@ docker compose up -d
 This starts:
 - **PHP 8.4** (app server on port `8000`)
 - **PostgreSQL 16** (port `5432`)
+- **RabbitMQ 4** (AMQP on port `5672`, management UI on port `15672`)
 
 ### 2. Configure environment
 
@@ -269,7 +300,22 @@ Then initialise the test database:
 composer app:db:reset:test
 ```
 
-### 6. Verify everything works
+### 6. Start the Messenger worker
+
+Domain events (e.g. stock reservation, user notification) are processed asynchronously via RabbitMQ. Start the worker in a separate terminal:
+
+```bash
+docker compose exec php php bin/console messenger:consume domain_events --time-limit=3600 -vv
+```
+
+The `-vv` flag prints each received message to the console — useful for watching the async flow live.
+
+**To observe the full async loop:**
+1. Place an order (`POST /api/orders`) or pay one (`PATCH /api/orders/{id}/pay`)
+2. Open the RabbitMQ management UI at [http://localhost:15672](http://localhost:15672) (guest / guest) and watch the message appear in the `domain_events` queue
+3. The worker picks it up, reserves stock and sends the notification
+
+### 7. Verify everything works
 
 ```bash
 composer app:qa
@@ -323,6 +369,7 @@ All project workflows are wired up as Composer scripts so there is a single, con
 | Framework | Symfony 8.0 |
 | ORM | Doctrine ORM 3.6 |
 | Database | PostgreSQL 16 |
+| Message Broker | RabbitMQ 4 (AMQP) via Symfony Messenger |
 | Authentication | JWT via LexikJWTAuthenticationBundle |
 | Logging | Monolog 3.x — JSON format (file in dev, stderr in prod) |
 | Static Analysis | PHPStan 2.x (level 8) with Symfony & Doctrine extensions |

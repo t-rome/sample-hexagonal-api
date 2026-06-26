@@ -1,0 +1,42 @@
+framework:
+    messenger:
+        # Failure transport: persists failed messages for later retry or inspection.
+        # failure_transport: failed
+
+        buses:
+            messenger.bus.default:
+                middleware:
+                    # Re-throws the original domain exception so ApiExceptionSubscriber
+                    # can map it to the correct HTTP status code.
+                    - App\Shared\Infrastructure\Messenger\Middleware\UnwrapDomainExceptionMiddleware
+
+        transports:
+            # RabbitMQ via AMQP — the DSN comes from MESSENGER_TRANSPORT_DSN in .env
+            # (compose.yaml sets it automatically for the Docker environment).
+            #
+            # To switch transport without touching PHP code, change the DSN:
+            #   sync://                              — inline (no worker needed, useful for debugging)
+            #   amqp://guest:guest@localhost:5672/%2f/domain_events — RabbitMQ (default)
+            #   doctrine://default                   — Postgres-backed queue (no broker needed)
+            #   redis://localhost:6379/domain_events  — Redis Streams
+            domain_events:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    # exchange: domain_events  (created automatically by auto_setup)
+                    # queue:    domain_events  (derived from the DSN path /domain_events)
+                    auto_setup: true
+
+            # Dead-letter queue: messages that fail after all retries land here.
+            # Uncomment once RabbitMQ is running and add retry middleware if needed.
+            # failed: 'doctrine://default?queue_name=failed'
+
+        routing:
+            App\Shared\Infrastructure\Messenger\DomainEventMessage: domain_events
+
+# In the test environment we override to sync:// so all handlers run inline
+# during the request — no worker process required for integration/Behat tests.
+when@test:
+    framework:
+        messenger:
+            transports:
+                domain_events: 'sync://'

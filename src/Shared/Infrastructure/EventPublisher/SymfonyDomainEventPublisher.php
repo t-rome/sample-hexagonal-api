@@ -9,18 +9,34 @@ use App\Shared\Domain\DomainEventPublisherInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Adapter that bridges domain events to Symfony's event dispatcher.
+ * SYNCHRONOUS adapter for DomainEventPublisherInterface.
  *
- * Domain events implement only the DomainEvent marker interface (no Symfony
- * dependency). Symfony's dispatcher accepts any object as an event, so no
- * framework coupling leaks into the domain layer.
+ * Forwards domain events directly to Symfony's EventDispatcher. Registered
+ * EventSubscribers (e.g. NotifyUserOnOrderPaidSubscriber) are called inline,
+ * within the same request and the same database transaction.
+ *
+ * Activate this adapter in config/services.yaml:
+ *
+ *     App\Shared\Domain\DomainEventPublisherInterface:
+ *         class: App\Shared\Infrastructure\EventPublisher\SymfonyDomainEventPublisher
+ *
+ * --- Characteristics ---
+ *
+ * ✔ Zero infrastructure: no broker, no worker process needed.
+ * ✔ Strong consistency: if a subscriber throws, the exception propagates and the
+ *   HTTP request fails — order and side-effect either both succeed or both fail.
+ * ✔ Simple observability: exceptions and traces are visible in a single request.
+ * ✗ Latency: slow subscribers (email, PDF) block the HTTP response.
+ * ✗ No retry: a transient failure in a subscriber aborts the whole request.
+ * ✗ Tight temporal coupling: subscriber must be healthy at the moment of the call.
  *
  * Publishing flow:
- *   CommandHandler saves Aggregate → repository calls releaseEvents()
- *     → DomainEventPublisherInterface::publish(event) — this class
+ *   CommandHandler → DomainEventPublisherInterface::publish(event)   ← this class
  *     → Symfony EventDispatcher::dispatch(event)
- *     → Infrastructure EventSubscribers are invoked
- *     → they delegate to Application-layer EventHandlers
+ *     → EventSubscriberInterface implementations (Infrastructure)
+ *     → Application-layer EventHandlers (pure PHP, no framework imports)
+ *
+ * @see MessengerDomainEventPublisher for the async alternative
  */
 final readonly class SymfonyDomainEventPublisher implements DomainEventPublisherInterface
 {

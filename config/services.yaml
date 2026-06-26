@@ -43,8 +43,25 @@ services:
     App\Order\Domain\Port\PaymentGatewayInterface:
         class: App\Order\Infrastructure\Payment\FakePaymentGateway
 
+    # ---------------------------------------------------------------------------
+    # DomainEventPublisherInterface — choose one adapter:
+    #
+    # ASYNC (active): Domain events are dispatched to RabbitMQ via Symfony
+    # Messenger. Handlers run in a separate worker process, decoupled from the
+    # HTTP request. Start the worker with:
+    #   php bin/console messenger:consume domain_events -vv
+    #
+    # SYNC (commented out): Domain events are dispatched inline via Symfony's
+    # EventDispatcher. Handlers run within the same request and DB transaction.
+    # No broker or worker needed, but slow/failing handlers block the response.
+    #
+    # Switching adapters: comment/uncomment the two `class:` lines below.
+    # Zero changes required in Domain or Application layer — this is the
+    # Ports & Adapters pattern in action.
+    # ---------------------------------------------------------------------------
     App\Shared\Domain\DomainEventPublisherInterface:
-        class: App\Shared\Infrastructure\EventPublisher\SymfonyDomainEventPublisher
+        class: App\Shared\Infrastructure\EventPublisher\MessengerDomainEventPublisher
+        # class: App\Shared\Infrastructure\EventPublisher\SymfonyDomainEventPublisher
 
     App\Shared\Application\Bus\CommandBusInterface:
         class: App\Shared\Infrastructure\Bus\SymfonyCommandBus

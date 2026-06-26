@@ -5,6 +5,7 @@ RUN apk add --no-cache \
         icu-dev \
         libzip-dev \
         libsodium-dev \
+        rabbitmq-c-dev \
         $PHPIZE_DEPS \
     && docker-php-ext-install \
         pdo_pgsql \
@@ -12,8 +13,8 @@ RUN apk add --no-cache \
         zip \
         sodium \
         opcache \
-    && pecl install redis \
-    && docker-php-ext-enable redis \
+    && pecl install redis amqp \
+    && docker-php-ext-enable redis amqp \
     && apk del $PHPIZE_DEPS
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

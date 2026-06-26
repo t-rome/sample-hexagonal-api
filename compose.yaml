@@ -10,8 +10,11 @@ services:
       - .:/app
     environment:
       DATABASE_URL: "postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-secret}@database:5432/${POSTGRES_DB:-api}?serverVersion=16&charset=utf8"
+      MESSENGER_TRANSPORT_DSN: "amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672/%2f/domain_events"
     depends_on:
       database:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
 
 ###> doctrine/doctrine-bundle ###
@@ -31,7 +34,22 @@ services:
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/10_init.sql:ro
 ###< doctrine/doctrine-bundle ###
 
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
 volumes:
 ###> doctrine/doctrine-bundle ###
   database_data:
 ###< doctrine/doctrine-bundle ###
+  rabbitmq_data:

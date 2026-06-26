@@ -26,7 +26,7 @@
 
   <!-- TITLE -->
   <text x="700" y="38" text-anchor="middle" font-size="22" font-weight="700" fill="#f1f5f9">Test Strategy &amp; Quality Assurance</text>
-  <text x="700" y="58" text-anchor="middle" font-size="13" fill="#475569">sample-hexagonal-api · PHPUnit 13 · Behat · PHPStan 2 · PHP-CS-Fixer · OpenAPI Validation · Monolog JSON</text>
+  <text x="700" y="58" text-anchor="middle" font-size="13" fill="#475569">sample-hexagonal-api · PHPUnit 13 · Behat · PHPStan 2 · PHP-CS-Fixer · OpenAPI Validation · Symfony Messenger (sync:// in tests)</text>
   <line x1="20" y1="70" x2="1380" y2="70" stroke="#1e293b" stroke-width="1"/>
 
   <!-- VERTICAL SEPARATOR -->
@@ -134,8 +134,9 @@
   <text x="423" y="533" font-size="7.5" fill="#d97706">  Both contexts share the same container → one DB state</text>
 
   <line x1="32" y1="563" x2="816" y2="563" stroke="#451a03" stroke-width="1"/>
-  <text x="430" y="575" text-anchor="middle" font-size="7.5" fill="#78350f">Real Symfony Kernel · Real PostgreSQL · APP_ENV=test · OpenAPI validated via "the response matches the OpenAPI spec" step</text>
-  <text x="430" y="585" text-anchor="middle" font-size="7" fill="#78350f">FakePaymentGateway bound in test container · "the payment gateway will decline" → FakePaymentGateway::willDecline()</text>
+  <text x="430" y="571" text-anchor="middle" font-size="7.5" fill="#78350f">Real Symfony Kernel · Real PostgreSQL · APP_ENV=test · OpenAPI validated via "the response matches the OpenAPI spec" step</text>
+  <text x="430" y="581" text-anchor="middle" font-size="7" fill="#78350f">FakePaymentGateway bound in test container · "the payment gateway will decline" → FakePaymentGateway::willDecline()</text>
+  <text x="430" y="591" text-anchor="middle" font-size="7" fill="#78350f">Messenger transport overridden to sync:// (when@test in messenger.yaml) — domain event handlers run inline, no RabbitMQ needed</text>
 
   <!-- Arrow down -->
   <line x1="430" y1="595" x2="430" y2="609" stroke="#475569" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#arrGray)"/>
