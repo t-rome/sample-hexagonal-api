@@ -71,23 +71,9 @@ Every use case is either a **Command** (mutates state, returns void) or a **Quer
 
 Domain events decouple bounded contexts without coupling them through shared services. Aggregates (e.g. `Order`) extend `AggregateRoot`, which provides `recordEvent()` and `releaseEvents()` — events accumulate in memory during a command and are flushed only after the aggregate is persisted. The command handler then publishes them through `DomainEventPublisherInterface`.
 
-Both a synchronous and an asynchronous adapter exist in the codebase. The active one is selected by a single line in `config/services.yaml` — zero changes in Domain or Application layer either way.
+This is **Ports & Adapters in action**: there are exactly **two adapters** behind one port. The active one is selected by a single line in `config/services.yaml` — zero changes in Domain or Application layer either way.
 
-**ASYNC adapter — `MessengerDomainEventPublisher` (currently active)**
-
-```
-CommandHandler → DomainEventPublisherInterface::publish(event)
-  → MessengerDomainEventPublisher
-    → bus->dispatch(DomainEventMessage(event))
-      → RabbitMQ (AMQP · domain_events queue)
-        → worker: php bin/console messenger:consume domain_events
-          → ReserveStockOnOrderPlacedMessengerHandler  →  ReserveStockOnOrderPlacedHandler  ← pure PHP
-          → NotifyUserOnOrderPaidMessengerHandler       →  NotifyUserOnOrderPaidHandler       ← pure PHP
-```
-
-The HTTP response is returned immediately; handlers run in the background. The transport (RabbitMQ, Redis, Doctrine, `sync://`) is a single env variable — no PHP changes needed to switch. The test environment overrides to `sync://` so handlers run inline without a broker.
-
-**SYNC adapter — `SymfonyDomainEventPublisher` (available, swap in services.yaml)**
+**Adapter 1 — `SymfonyDomainEventPublisher` (sync)**
 
 ```
 CommandHandler → DomainEventPublisherInterface::publish(event)
@@ -99,7 +85,27 @@ CommandHandler → DomainEventPublisherInterface::publish(event)
 
 Handlers run within the same request and DB transaction. If a handler throws, the whole request fails — which can be desirable for strong consistency (e.g. stock reservation). No broker or worker needed.
 
-**Port swap — Ports & Adapters in action:** the application handlers (`NotifyUserOnOrderPaidHandler`, `ReserveStockOnOrderPlacedHandler`) are identical in both approaches. See `config/services.yaml` for the swap comment and `src/Shared/Infrastructure/EventPublisher/` for both adapters with detailed trade-off documentation.
+**Adapter 2 — `MessengerDomainEventPublisher` (async, currently active)**
+
+```
+CommandHandler → DomainEventPublisherInterface::publish(event)
+  → MessengerDomainEventPublisher
+    → bus->dispatch(DomainEventMessage(event))
+      → transport  (configured via MESSENGER_TRANSPORT_DSN)
+        → worker: php bin/console messenger:consume domain_events
+          → ReserveStockOnOrderPlacedMessengerHandler  →  ReserveStockOnOrderPlacedHandler  ← pure PHP
+          → NotifyUserOnOrderPaidMessengerHandler       →  NotifyUserOnOrderPaidHandler       ← pure PHP
+```
+
+The HTTP response is returned immediately; handlers run in the background. The **transport is a single config value** — no PHP changes needed to switch:
+
+| `MESSENGER_TRANSPORT_DSN` | Behaviour |
+|---|---|
+| `sync://` | Inline (no broker) — used in the **test environment** |
+| `doctrine://default` | Postgres-backed queue — zero extra infrastructure |
+| `amqp://guest:guest@rabbitmq:5672/%2f/domain_events` | RabbitMQ — **default in Docker** |
+
+These are not three separate approaches: they are three transport options within the same async adapter. The application handlers (`NotifyUserOnOrderPaidHandler`, `ReserveStockOnOrderPlacedHandler`) are identical regardless of which adapter or transport is active. See `config/services.yaml` for the adapter swap comment and `src/Shared/Infrastructure/EventPublisher/` for both adapters with detailed trade-off documentation.
 
 ### API-First Approach
 
