@@ -11,14 +11,8 @@ framework:
                     - App\Shared\Infrastructure\Messenger\Middleware\UnwrapDomainExceptionMiddleware
 
         transports:
-            # RabbitMQ via AMQP — the DSN comes from MESSENGER_TRANSPORT_DSN in .env
-            # (compose.yaml sets it automatically for the Docker environment).
-            #
-            # To switch transport without touching PHP code, change the DSN:
-            #   sync://                              — inline (no worker needed, useful for debugging)
-            #   amqp://guest:guest@localhost:5672/%2f/domain_events — RabbitMQ (default)
-            #   doctrine://default                   — Postgres-backed queue (no broker needed)
-            #   redis://localhost:6379/domain_events  — Redis Streams
+            # Transport is configured via MESSENGER_TRANSPORT_DSN in .env —
+            # see that file for all available options (RabbitMQ, Doctrine, sync://).
             domain_events:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
