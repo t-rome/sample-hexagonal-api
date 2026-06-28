@@ -1,6 +1,7 @@
 monolog:
     channels:
         - deprecation
+        - domain_events
 
 when@dev:
     monolog:
@@ -10,7 +11,13 @@ when@dev:
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: debug
                 formatter: monolog.formatter.json
-                channels: ["!event"]
+                channels: ["!event", "!messenger", "!domain_events"]
+            domain_events:
+                type: stream
+                path: "%kernel.logs_dir%/domain_events.log"
+                level: debug
+                formatter: monolog.formatter.json
+                channels: ["messenger", "domain_events"]
 
 when@test:
     monolog:

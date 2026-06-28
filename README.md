@@ -107,6 +107,14 @@ The HTTP response is returned immediately; handlers run in the background. The *
 
 These are not three separate approaches: they are three transport options within the same async adapter. The application handlers (`NotifyUserOnOrderPaidHandler`, `ReserveStockOnOrderPlacedHandler`) are identical regardless of which adapter or transport is active. See `config/services.yaml` for the adapter swap comment and `src/Shared/Infrastructure/EventPublisher/` for both adapters with detailed trade-off documentation.
 
+**Observability:** Messenger processing and domain event side-effects are written to a dedicated log file (`var/log/domain_events.log`), separate from the main HTTP log. `FakeNotificationService` — a stub that stands in for a real email/SMS/push adapter — writes there too, so you can see the full event flow in one place:
+
+```bash
+docker compose exec php tail -f var/log/domain_events.log
+```
+
+In a real system the notification service would be replaced by an actual adapter (e.g. `MailerNotificationService`) and the log entry would become a real notification. The dedicated log channel is just there to make the demo observable without noise from HTTP or Doctrine.
+
 ### API-First Approach
 
 The OpenAPI specification lives in `docs/openapi.yaml` and is the source of truth for the API contract. It is built from modular files under `api-contract/` (paths and schemas). The contract is enforced at three layers:
